@@ -16,7 +16,7 @@ check <- function(ok, what) {
   message("ok: ", what)
 }
 
-xlsx <- "prerun/data/example_file/aasr_emstans_file_19October2024 (2).xlsx"
+xlsx <- "prerun/data/example_file/example_0.xlsx"
 out_dir <- file.path(tempdir(), "emss_review")
 dir.create(out_dir, showWarnings = FALSE)
 
