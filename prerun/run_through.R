@@ -1,5 +1,5 @@
 # =============================================================================
-# EmStanS run-through: every step of the pipeline, one function at a time
+# emss run-through: every step of the pipeline, one function at a time
 # =============================================================================
 #
 # Run from the package root (the folder with DESCRIPTION), section by section.

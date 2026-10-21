@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-# EmStanS 
+# emss
 
 ## Overview
 
@@ -25,13 +25,13 @@ This package aims to support Embedded Standard Setting, calculating counts and w
 
 
 ```{r}
-devtools::install_github("sooyongl/EmStanS", dependencies = T)
+devtools::install_github("sooyongl/emss", dependencies = T)
 ```
 
 ## Usage
 
 ```{r eval = T}
-library(EmStanS)
+library(emss)
 ```
 
 ```{r eval = T}

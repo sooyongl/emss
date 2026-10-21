@@ -1,5 +1,5 @@
 # =============================================================================
-# EmStanS overall test: the functions a user calls
+# emss overall test: the functions a user calls
 # =============================================================================
 #
 # Run from the package root, section by section. Uses the installed package
@@ -9,7 +9,7 @@
 # Each section prints its result; check() lines stop with a message if
 # something is wrong.
 
-library(EmStanS)
+library(emss)
 
 check <- function(ok, what) {
   if (!isTRUE(ok)) stop("CHECK FAILED: ", what, call. = FALSE)
@@ -17,7 +17,7 @@ check <- function(ok, what) {
 }
 
 xlsx <- "prerun/data/example_file/aasr_emstans_file_19October2024 (2).xlsx"
-out_dir <- file.path(tempdir(), "emstans_review")
+out_dir <- file.path(tempdir(), "emss_review")
 dir.create(out_dir, showWarnings = FALSE)
 
 # 1. Main function and print() --------------------------------------------------

@@ -1,4 +1,4 @@
-#' @include EmStanS-package.r
+#' @include emss-package.r
 NULL
 
 # Common input format ---------------------------------------------------------
@@ -196,9 +196,9 @@ ess_data <- function(ratings, items, setup = NULL, examinees = NULL,
   validate_ess_data(out)
 }
 
-#' Read an EmStanS Excel workbook
+#' Read an emss Excel workbook
 #'
-#' Reads the five-sheet EmStanS workbook (Setup, Panelists, Ratings,
+#' Reads the five-sheet emss workbook (Setup, Panelists, Ratings,
 #' ItemMetaData, ExamineeMetaData) by sheet name, falling back to sheet
 #' position when a name is not found, and returns [ess_data()].
 #'
@@ -245,7 +245,7 @@ ess_read_excel <- function(path, sheets = NULL, levels = NULL, sd = NULL,
 #' @export
 print.ess_data <- function(x, ...) {
   r <- x$ratings
-  cat("EmStanS input data\n")
+  cat("emss input data\n")
   cat(sprintf("  %d grade(s), %d round(s), %d panelist(s), %d item(s), %d rating(s)\n",
               length(unique(r$grade)), length(unique(r$round)),
               nrow(unique(r[c("grade", "round", "panelist")])),

@@ -32,7 +32,7 @@ How to use bootstrapping for ESS
 ## Fit Embeded Standard Setting
 
 ```{r eval = T}
-library(EmStanS)
+library(emss)
 ```
 
 ```{r eval = T}
@@ -76,7 +76,7 @@ boot_res
 
 By default each sample uses the sampled items' locations as candidate cuts
 and takes the exact ESS minimum, the same estimator as `emstans()`. The
-earlier EmStanS bootstrap, a jittered grid of candidate cuts with a
+original bootstrap of EmStanS 0.1.0, a jittered grid of candidate cuts with a
 GAM-smoothed minimum, is available with `grid = "jittered"`:
 
 ```{r eval = T}

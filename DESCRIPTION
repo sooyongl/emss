@@ -1,4 +1,4 @@
-Package: EmStanS
+Package: emss
 Type: Package
 Title: Embedded Standard Setting
 Version: 0.1.0
@@ -49,9 +49,9 @@ LazyData: true
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0
 Config/testthat/edition: 3
-URL: https://sooyongl.github.io/EmStanS/
+URL: https://sooyongl.github.io/emss/
 Collate: 
-    'EmStanS-package.r'
+    'emss-package.r'
     'ess_data.R'
     'ess_estimate.R'
     'ess_diagnose.R'

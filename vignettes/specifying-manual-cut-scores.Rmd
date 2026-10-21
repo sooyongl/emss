@@ -32,7 +32,7 @@ How to specify manual cuts
 ## Fit Embeded Standard Setting
 
 ```{r eval = T}
-library(EmStanS)
+library(emss)
 ```
 
 ```{r eval = T}

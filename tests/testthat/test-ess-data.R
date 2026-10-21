@@ -84,7 +84,7 @@ test_that("the wide examinee layout is stacked", {
   wide <- data.frame(Score...1 = c(300, 310), Freq...2 = c(2, 3), Grade...3 = "M1",
                      ...4 = NA, Score...5 = c(320, NA), Freq...6 = c(4, NA), Grade...7 = c("M2", NA),
                      check.names = FALSE)
-  long <- EmStanS:::.ess_stack_examinees(wide)
+  long <- emss:::.ess_stack_examinees(wide)
   expect_equal(nrow(long), 3)
   expect_equal(names(long), c("Score", "Freq", "Grade"))
 })

@@ -1,4 +1,4 @@
 library(testthat)
-library(EmStanS)
+library(emss)
 
-test_check("EmStanS")
+test_check("emss")

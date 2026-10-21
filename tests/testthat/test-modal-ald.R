@@ -11,7 +11,7 @@ test_that("row_modes() matches the original per-item rule", {
     cors <- if (i %% 2) round(runif(p), 1) else rep(0.5, p)  # tied correlations
     if (i %% 5 == 0) cors[1] <- NA
     expect_identical(
-      EmStanS:::row_modes(ald, cors),
+      emss:::row_modes(ald, cors),
       unname(apply(ald, 1, get_mode_reference, cors))
     )
   }
@@ -22,6 +22,6 @@ test_that("ties go to the highest-correlation panelist", {
                     c = c("Level3", "Level1"))
   # Row 1: three-way tie -> panelist c (cor 0.9) wins.
   # Row 2: Level2 is the unique mode regardless of correlations.
-  expect_identical(EmStanS:::row_modes(ald, c(0.1, 0.5, 0.9)),
+  expect_identical(emss:::row_modes(ald, c(0.1, 0.5, 0.9)),
                    c("Level3", "Level2"))
 })

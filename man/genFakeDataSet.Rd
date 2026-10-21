@@ -53,7 +53,7 @@ A list of simulated data frames formatted for use with `emstans()`.
 \description{
 `genFakeDataSet()` generates a simulated data set that follows the input
 structure required by `emstans()`. The generated data can be used to test
-functions in the EmStanS package, demonstrate the expected data format, or
+functions in the emss package, demonstrate the expected data format, or
 run examples without using operational data.
 }
 \details{

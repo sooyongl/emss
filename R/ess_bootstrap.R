@@ -23,8 +23,8 @@ bootstrapping <- function(x, ...) {
 #'   * `"jittered"`: an evenly spaced grid over the location range (step
 #'     0.1 when the range is under 10, else 1), each point randomly moved by
 #'     up to one step, shared by all cut levels; the cut is the minimum of a
-#'     GAM-smoothed inconsistency curve over that grid. This is the earlier
-#'     EmStanS bootstrap.
+#'     GAM-smoothed inconsistency curve over that grid. This is the original
+#'     bootstrap of EmStanS 0.1.0 (the former name of this package).
 #' @param ... Former argument names, still accepted with a warning:
 #'   `gca_name` (now `unit`) and `boot_num` (now `n`).
 #' @return An object of class `"bootESS"`: use `print()`, `summary()`,

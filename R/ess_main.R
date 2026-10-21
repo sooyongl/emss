@@ -11,7 +11,7 @@ NULL
 #' modal result of each grade, the function also reports agreement between
 #' aligned and empirical levels, an item review, and impact data.
 #'
-#' @param file Path to an EmStanS Excel workbook (sheets Setup, Panelists,
+#' @param file Path to an emss Excel workbook (sheets Setup, Panelists,
 #'   Ratings, ItemMetaData, ExamineeMetaData). Either `file` or `data` must be
 #'   given.
 #' @param data An object from [ess_data()] or [ess_read_excel()], or a list

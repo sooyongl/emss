@@ -1,7 +1,7 @@
 ---
 title: "getting-started"
 description: >
-  Basic usage of EmStanS for Embeded Standard Setting
+  Basic usage of emss for Embeded Standard Setting
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{getting-started}
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 options(tibble.print_min = 5, tibble.print_max = 5)
 ```
 
-# EmStanS 
+# emss
 
 ## Overview
 
@@ -33,13 +33,13 @@ This package aims to support Embedded Standard Setting, calculating counts and w
 
 
 ```{r}
-devtools::install_github("sooyongl/EmStanS", dependencies = T)
+devtools::install_github("sooyongl/emss", dependencies = T)
 ```
 
 ## Usage
 
 ```{r eval = T}
-library(EmStanS)
+library(emss)
 ```
 
 ```{r eval = T}
@@ -72,7 +72,7 @@ res <- emstans(data = fake_data,
 
 ## Your own data
 
-An EmStanS Excel workbook (sheets Setup, Panelists, Ratings, ItemMetaData,
+An emss Excel workbook (sheets Setup, Panelists, Ratings, ItemMetaData,
 ExamineeMetaData) can be passed directly:
 
 ```{r}

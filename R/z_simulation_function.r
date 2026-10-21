@@ -1,11 +1,11 @@
-#' @include EmStanS-package.r
+#' @include emss-package.r
 NULL
 
 #' Generate a Fake Data Set for Embedded Standard Setting
 #'
 #' `genFakeDataSet()` generates a simulated data set that follows the input
 #' structure required by `emstans()`. The generated data can be used to test
-#' functions in the EmStanS package, demonstrate the expected data format, or
+#' functions in the emss package, demonstrate the expected data format, or
 #' run examples without using operational data.
 #'
 #' @param ngca A numeric value indicating the number of grade clusters or GCAs to

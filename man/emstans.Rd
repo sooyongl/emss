@@ -19,7 +19,7 @@ emstans(
 )
 }
 \arguments{
-\item{file}{Path to an EmStanS Excel workbook (sheets Setup, Panelists,
+\item{file}{Path to an emss Excel workbook (sheets Setup, Panelists,
 Ratings, ItemMetaData, ExamineeMetaData). Either `file` or `data` must be
 given.}
 

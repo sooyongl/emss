@@ -1,4 +1,7 @@
-# EmStanS 0.1.0.9000
+# emss 0.1.0.9000
+
+* The package is renamed from EmStanS to emss. Use `library(emss)` and
+  `emss::`; function names, including `emstans()`, are unchanged.
 
 ## Stage 3: method decisions and argument names
 
@@ -44,7 +47,7 @@
   column names: columns are mapped by name or position with `columns =`.
   Only ratings and items are required; level labels, SD and EC can come
   from a setup table, from the `levels`, `sd` and `ec` arguments, or both
-  (arguments win). `ess_read_excel()` reads the EmStanS workbook by sheet
+  (arguments win). `ess_read_excel()` reads the emss workbook by sheet
   name. `emstans(data = )` accepts either, or the old list of data frames.
 * Level labels are carried through to every table, plot and report, in
   level order, and may differ by grade.

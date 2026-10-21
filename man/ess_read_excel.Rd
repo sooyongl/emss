@@ -2,7 +2,7 @@
 % Please edit documentation in R/ess_data.R
 \name{ess_read_excel}
 \alias{ess_read_excel}
-\title{Read an EmStanS Excel workbook}
+\title{Read an emss Excel workbook}
 \usage{
 ess_read_excel(
   path,
@@ -43,7 +43,7 @@ items `grade`, `item_id`, `domain`, `order`; setup `grade`, `levels`,
 An object of class `"ess_data"`.
 }
 \description{
-Reads the five-sheet EmStanS workbook (Setup, Panelists, Ratings,
+Reads the five-sheet emss workbook (Setup, Panelists, Ratings,
 ItemMetaData, ExamineeMetaData) by sheet name, falling back to sheet
 position when a name is not found, and returns [ess_data()].
 }
