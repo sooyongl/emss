@@ -1,0 +1,12 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^prerun/
+^prerun$
+^README
+^server.r
+^ui.r
+^rsconnect
+^shinyapp.r
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

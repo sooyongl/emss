@@ -1,0 +1,66 @@
+Package: EmStanS
+Type: Package
+Title: Embedded Standard Setting
+Version: 0.1.0
+Authors@R: 
+    c(person(given = "Daniel",
+             family = "Lewis",
+             role = c("aut", "cph")),
+      person(given = "Sooyong",
+             family = "Lee",
+             email = "sooyongl09@utexas.edu",
+             role = c("aut","cre")),
+      person(given = "Seung",
+             family = "Choi",
+             role = c("aut"))
+             )
+Maintainer: Sooyong Lee <sooyongl09@gmail.com>
+Description: Provides functions for embedded standard setting, including data preparation,
+    item-level summaries, cut score estimation, visualization, reporting, and simulation.
+    The package implements embedded standard setting approaches such as ESS-Count and
+    ESS-Weight to support the estimation of performance standards from item-achievement
+    level descriptor alignments and empirical item information.
+Depends:
+    R (>= 4.1.0)
+Imports:
+    bslib,
+    data.table,
+    dplyr,
+    DT,
+    ggplot2,
+    htmltools,
+    mgcv,
+    plotly,
+    psych,
+    readxl,
+    stats,
+    stringi,
+    stringr,
+    tibble,
+    utils
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0),
+    withr
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3
+URL: https://sooyongl.github.io/EmStanS/
+Collate: 
+    'EmStanS-package.r'
+    'ess_data.R'
+    'ess_estimate.R'
+    'ess_diagnose.R'
+    'ess_main.R'
+    'ess_bootstrap.R'
+    'ess_methods.R'
+    'ess_plots.R'
+    'ess_profile.R'
+    'ess_report.R'
+    'validate.R'
+    'z_simulation_function.r'
+RoxygenNote: 7.3.2

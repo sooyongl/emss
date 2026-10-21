@@ -1,0 +1,25 @@
+title: EmStanS
+url: https://sooyongl.github.io/EmStanS
+template:
+  bootstrap: 5
+  bootswatch: sandstone
+navbar:
+  structure:
+    left: [intro, reference, articles, examples, news]
+    right: [github]
+
+articles:
+  - title: Tutorials
+    navbar: Tutorials
+    contents:
+      - getting-started
+      - specifying-manual-cut-scores
+      - bootstrapping
+      # - input-data-structure
+      # - interpreting-output
+  # - title: Bootstrapping
+    # navbar: Bootstrapping
+    # contents:
+    #   - custom-cut-scores
+    #   - interactive-reports
+

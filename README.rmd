@@ -1,0 +1,109 @@
+---
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = F)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "vignettes",
+  out.width = "100%"
+)
+
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+# EmStanS 
+
+## Overview
+
+This package aims to support Embedded Standard Setting, calculating counts and weights.
+
+
+## Install
+
+
+```{r}
+devtools::install_github("sooyongl/EmStanS", dependencies = T)
+```
+
+## Usage
+
+```{r eval = T}
+library(EmStanS)
+```
+
+```{r eval = T}
+fake_data <- genFakeDataSet(ngca = 3, 
+               cor_val = 0.2,
+               n = 30,
+               nlevel = 3,
+               ntable = 5,
+               npanelist = 5,
+               sdinp = 1,
+               ecinp = 0,
+               100,300)
+
+
+
+fake_data
+
+# Or you can use your own data structured by the following table.
+```
+
+```{r eval = T}
+res <- emstans(data = fake_data,
+               grades = c(1, 2),
+               location = "Loc_RP50",
+               method = "weight",
+               smooth = FALSE)
+
+```
+
+
+## Summary
+
+```{r eval = T}
+summary(res)
+```
+
+
+## Report
+
+With `what = "all"`, the combined report is provided.
+
+### Individual 
+
+```{r}
+report(res, what = "individual")
+```
+
+### Detailed 
+
+```{r}
+report(res, what = "detailed")
+```
+
+
+### Summary
+
+```{r}
+report(res, what = "summary")
+```
+
+### Item Review 
+
+```{r}
+report(res, what = "review")
+```
+
+
+## Extract
+
+`extract()` provides the primary results of ESS as a form of `list()`.
+
+```{r}
+extract(res)
+```
+
