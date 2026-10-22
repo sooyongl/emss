@@ -32,17 +32,22 @@ plot_profile <- function(x, unit, interactive = FALSE) {
   m <- x$modal[x$modal$unit == unit & x$modal$table == "All", ]
   m$cut_level <- level_label(x, u$grade, m$level)
   m$inconsistency <- if (x$settings$method == "weight") m$weight else m$count
-
+  # Labels near either edge are aligned inward so they are not clipped.
+  rng <- range(u$location); pos <- (m$cut_score - rng[1]) / diff(rng)
+  m$hjust <- ifelse(pos < 0.1, 0, ifelse(pos > 0.9, 1, 0.5))
+  
   fs <- x$settings$font_size
   m$label <- paste0(m$cut_level, "\n", signif(m$cut_score, 4))
   # Labels sit above the curves, one per cut line, so they neither cover the
   # curves nor run off the panel.
   cut_labels <- if (interactive) {
-      top <- max(d$inconsistency, na.rm = TRUE)
-      geom_text(data = m, aes(x = .data$cut_score, y = top * 1.15, label = .data$label),
+    top <- max(d$inconsistency, na.rm = TRUE)
+    geom_text(data = m, aes(x = .data$cut_score, y = top * 1.15, label = .data$label),
               size = fs * 5 / 14 * .75, show.legend = FALSE)
   } else {
-      geom_label(data = m, aes(x = .data$cut_score, y = Inf, label = .data$label, hjust = .data$hjust), vjust = 1.1, size = fs * 5 / 14 * .75, label.size = 0, fill = "white", lineheight = .9, show.legend = FALSE)
+    geom_label(data = m, aes(x = .data$cut_score, y = Inf, label = .data$label, hjust = .data$hjust),
+               vjust = 1.1, size = fs * 5 / 14 * .75, label.size = 0, fill = "white",
+               lineheight = .9, show.legend = FALSE)
   }
   ggplot(d, aes(x = .data$location, y = .data$inconsistency, colour = .data$cut_level)) +
     geom_line(alpha = .5) +
@@ -51,16 +56,13 @@ plot_profile <- function(x, unit, interactive = FALSE) {
                linetype = "dashed") +
     geom_point(data = m, aes(x = .data$cut_score, y = .data$inconsistency), size = 3, shape = 21,
                fill = "white", stroke = 1.5) +
-    # geom_text(data = m, aes(x = .data$cut_score, y = .data$inconsistency,
-    #                         label = paste0(.data$cut_level, ": ", round(.data$cut_score, 3),
-    #                                        " (p. ", .data$page, ")")),
-    #           vjust = -1, fontface = "bold", size = fs * 5 / 14 * .8, show.legend = FALSE) +
     cut_labels +
     scale_y_continuous(expand = expansion(mult = c(0.03, 0.22))) +
     labs(x = x$settings$location,
          y = if (x$settings$method == "weight") "Weighted inconsistency" else "Inconsistent items",
          colour = "Cut for", title = unit) +
-    theme_bw(base_size = fs)
+    theme_bw(base_size = fs) +
+    theme(legend.position = "bottom")
 }
 
 # Cut scores, percentage in level, and percentage at or above level, across

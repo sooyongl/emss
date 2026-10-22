@@ -1,0 +1,118 @@
+# Run Embedded Standard Setting Analysis
+
+\`emstans()\` estimates cut scores with Embedded Standard Setting (ESS)
+from panelists' item-level alignments and item locations. Each grade and
+round is analysed separately: cut scores are estimated for every
+panelist and for the modal alignment across panelists (per table and for
+all tables), and the median and average of the panelist cuts are
+reported. For the modal result of each grade, the function also reports
+agreement between aligned and empirical levels, an item review, and
+impact data.
+
+## Usage
+
+``` r
+emstans(
+  file = NULL,
+  data = NULL,
+  ...,
+  grades = NULL,
+  location = "RP67",
+  method = c("weight", "count"),
+  smooth = FALSE,
+  by_domain = FALSE,
+  domains = NULL,
+  font_size = 14,
+  digits = 3
+)
+```
+
+## Arguments
+
+- file:
+
+  Path to an emss Excel workbook (sheets Setup, Panelists, Ratings,
+  ItemMetaData, ExamineeMetaData). Either \`file\` or \`data\` must be
+  given.
+
+- data:
+
+  An object from \[ess_data()\] or \[ess_read_excel()\], or a list of
+  data frames in the workbook's sheet order (setup, panelists, ratings,
+  item data, examinee data).
+
+- ...:
+
+  Former argument names, still accepted with a warning. All arguments
+  after \`data\` must be named in full. Former names: \`filePath\` (now
+  \`file\`), \`grade\` (\`grades\`), \`loc\` (\`location\`), \`WESS\`
+  (\`method\`), \`gamest\` (\`smooth\`), \`domain\` and
+  \`select_domain\` (\`by_domain\`, \`domains\`), \`targets\` (use the
+  \`columns\` argument of \[ess_data()\]) and \`median\` (no longer
+  needed: modal, median and average cuts are always reported).
+
+- grades:
+
+  Grades to analyse: \`NULL\` for all, a numeric vector of positions, or
+  a character vector of grade names. Default \`NULL\`.
+
+- location:
+
+  Name of the item location column, such as \`"RP67"\` or \`"RP50"\`.
+  Default \`"RP67"\`.
+
+- method:
+
+  \`"weight"\` for ESS-Weight (minimise the summed distance of
+  inconsistent items) or \`"count"\` for ESS-Count (minimise their
+  number). Default \`"weight"\`.
+
+- smooth:
+
+  If \`TRUE\`, cut scores are the minima of a GAM-smoothed inconsistency
+  profile instead of the exact minima. Default \`FALSE\`.
+
+- by_domain:
+
+  If \`TRUE\`, each content domain (the item data's Domain column) is
+  also analysed separately, in addition to all items of each grade.
+  Default \`FALSE\`.
+
+- domains:
+
+  With \`by_domain = TRUE\`, the domains to analyse; \`NULL\` for all of
+  them.
+
+- font_size:
+
+  Font size for plots. Default \`14\`.
+
+- digits:
+
+  Decimal places in printed tables. Default \`3\`.
+
+## Value
+
+An object of class \`"ESS"\`. Use \[extract()\] to get its tables,
+\[report()\] for an HTML report, \[plot()\] for plots, \[update()\] to
+set cut scores manually and \[bootstrapping()\] for bootstrap cut
+scores.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+res <- emstans("study.xlsx", location = "RP67")
+res
+extract(res, "cutscore")
+report(res)
+
+# ESS-Count, and each content domain separately
+emstans("study.xlsx", method = "count", by_domain = TRUE)
+
+# CSV input with custom column names and level labels
+d <- ess_data(ratings = "ratings.csv", items = "items.csv",
+              levels = c("Basic", "Intermediate", "Advanced"))
+res <- emstans(data = d, location = "RP50")
+} # }
+```
