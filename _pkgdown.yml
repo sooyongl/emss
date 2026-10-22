@@ -1,4 +1,6 @@
 title: emss
+news:
+  cran_dates: false
 url: https://sooyongl.github.io/emss
 template:
   bootstrap: 5
@@ -13,7 +15,7 @@ articles:
   - title: Articles
     navbar: Articles
     contents:
-      - articles/getting-started
-      - articles/ess-method
-      - articles/manual-cut-scores
-      - articles/bootstrapping
+      - getting-started
+      - ess-method
+      - manual-cut-scores
+      - bootstrapping

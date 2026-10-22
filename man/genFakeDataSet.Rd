@@ -13,7 +13,8 @@ genFakeDataSet(
   sdinp = 1,
   ecinp = 0,
   n,
-  ...
+  ...,
+  domains = c("Alg", "Geom", "Calc", "Prob")
 )
 }
 \arguments{
@@ -44,6 +45,15 @@ each GCA.}
 \item{...}{Additional numeric arguments passed to `runif()`, typically the
 minimum and maximum score values used to generate item locations. For
 example, `100, 300` generates item locations between 100 and 300.}
+
+\item{domains}{The content subdomains of the items, added to the item data
+as a `Domain` column. Either a character vector of subdomain names (for
+example `c("Number", "Algebra", "Geometry")`), or the number of
+subdomains, which are then named from `"Alg"`, `"Geom"`, `"Calc"`,
+`"Prob"`, `"Stat"`, `"Num"` (or `"D1"`, `"D2"`, ... beyond six). Items are
+split as evenly as possible across subdomains and assigned at random, so
+every subdomain spans the whole location range. `NULL` adds no `Domain`
+column. Must be named, since it follows `...`.}
 }
 \value{
 A list of simulated data frames formatted for use with `emstans()`.
@@ -58,7 +68,9 @@ run examples without using operational data.
 }
 \details{
 This function is mainly intended for package testing, examples, and
-demonstrations. The returned object mimics the data structure expected by
+demonstrations. Use the `Domain` column with `emstans(by_domain = TRUE)` to
+also estimate cut scores within each subdomain. The returned object mimics
+the data structure expected by
 `emstans()`, allowing users to inspect the required format before preparing
 their own data.
 }
@@ -76,5 +88,14 @@ fake_data <- genFakeDataSet(
   100,
   300
 )
+
+# Three named subdomains
+fake_data <- genFakeDataSet(ngca = 2, ntable = 2, npanelist = 4,
+                            cor_val = 0.6, nlevel = 3, sdinp = 1, ecinp = 0,
+                            n = 45, 300, 500,
+                            domains = c("Number", "Algebra", "Geometry"))
+table(fake_data$item_data$GCA, fake_data$item_data$Domain)
+
+# Four subdomains with default names (domains = 4), or none (domains = NULL)
 }
 }
