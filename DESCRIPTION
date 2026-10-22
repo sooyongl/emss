@@ -52,16 +52,17 @@ Config/testthat/edition: 3
 Config/Needs/website: quarto
 URL: https://sooyongl.github.io/emss/
 Collate: 
-    'emss-package.r'
+    'emss-package.R'
     'ess_data.R'
     'ess_estimate.R'
     'ess_diagnose.R'
     'ess_main.R'
     'ess_bootstrap.R'
+    'ess_locations.R'
     'ess_methods.R'
     'ess_plots.R'
     'ess_profile.R'
     'ess_report.R'
     'validate.R'
-    'z_simulation_function.r'
+    'z_simulation_function.R'
 RoxygenNote: 7.3.2

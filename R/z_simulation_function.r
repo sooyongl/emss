@@ -1,4 +1,4 @@
-#' @include emss-package.r
+#' @include emss-package.R
 NULL
 
 #' Generate a Fake Data Set for Embedded Standard Setting
