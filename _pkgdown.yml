@@ -3,23 +3,17 @@ url: https://sooyongl.github.io/emss
 template:
   bootstrap: 5
   bootswatch: sandstone
+  math-rendering: mathjax
 navbar:
   structure:
     left: [intro, reference, articles, examples, news]
     right: [github]
 
 articles:
-  - title: Tutorials
-    navbar: Tutorials
+  - title: Articles
+    navbar: Articles
     contents:
-      - getting-started
-      - specifying-manual-cut-scores
-      - bootstrapping
-      # - input-data-structure
-      # - interpreting-output
-  # - title: Bootstrapping
-    # navbar: Bootstrapping
-    # contents:
-    #   - custom-cut-scores
-    #   - interactive-reports
-
+      - articles/getting-started
+      - articles/ess-method
+      - articles/manual-cut-scores
+      - articles/bootstrapping

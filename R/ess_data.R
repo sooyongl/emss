@@ -12,7 +12,8 @@ NULL
 #             (location columns such as RP67 are chosen at analysis time)
 #   levels    grade, level (integer rank, 1 = lowest), label
 #   grades    grade, sd, ec
-#   examinees grade, score, freq (zero rows when not provided)
+#   examinees grade, score, freq: long score-frequency table (zero rows when
+#             not provided)
 
 # Input column names recognised by default, per table. Matching ignores case,
 # spaces, underscores and dots; the first candidate found is used.
@@ -32,7 +33,7 @@ NULL
   ratings   = c("grade", "panelist", "item_id", "level"),
   items     = c("grade", "item_id"),
   setup     = c("grade"),
-  examinees = c("grade", "score")
+  examinees = c("grade", "score", "freq")
 )
 
 #' Prepare Embedded Standard Setting input data
@@ -49,8 +50,12 @@ NULL
 #' @param setup Optional setup table (one row per grade), a data frame or a
 #'   path to a `.csv` file. Its `Level Options` column lists the level labels
 #'   from lowest to highest, separated by commas.
-#' @param examinees Optional examinee scores (`Score`, `Freq`, grade), a data
-#'   frame or a path to a `.csv` file. Used for impact data.
+#' @param examinees Optional score frequencies for impact data: a data frame
+#'   or a path to a `.csv` file in long format, one row per grade and score,
+#'   with three columns: grade (`GCA` or `Grade`), `Score` (on the same scale
+#'   as the item locations) and `Freq` (number of examinees with that score).
+#'   Wide tables with repeated Score/Freq/Grade blocks side by side are not
+#'   accepted.
 #' @param levels Level labels from lowest to highest. A character vector
 #'   applies to every grade; a named list gives labels per grade, for example
 #'   `list(R1 = c("E", "M", "L"), R2 = c("B", "P", "A"))`. Overrides the setup
@@ -98,7 +103,7 @@ ess_data <- function(ratings, items, setup = NULL, examinees = NULL,
   mapping <- list()
   for (tbl in names(raw)) {
     if (is.null(raw[[tbl]])) next
-    if (tbl == "examinees") raw[[tbl]] <- .ess_stack_examinees(raw[[tbl]])
+    if (tbl == "examinees") raw[[tbl]] <- .ess_check_examinees(raw[[tbl]])
     if (tbl == "examinees" && nrow(raw[[tbl]]) == 0) { raw[tbl] <- list(NULL); next }
     mapping[[tbl]] <- .ess_resolve_columns(raw[[tbl]], tbl, columns[[tbl]])
   }
@@ -176,10 +181,16 @@ ess_data <- function(ratings, items, setup = NULL, examinees = NULL,
     examinees_df <- data.frame(
       grade = .ess_chr(e[[m[["grade"]]]]),
       score = suppressWarnings(as.numeric(e[[m[["score"]]]])),
-      freq  = if (!is.na(m[["freq"]])) suppressWarnings(as.numeric(e[[m[["freq"]]]])) else 1,
+      freq  = suppressWarnings(as.numeric(e[[m[["freq"]]]])),
       stringsAsFactors = FALSE
     )
-    examinees_df <- examinees_df[!is.na(examinees_df$score), , drop = FALSE]
+    bad <- which(is.na(examinees_df$grade) | is.na(examinees_df$score) |
+                   is.na(examinees_df$freq) | examinees_df$freq < 0 |
+                   examinees_df$freq != round(examinees_df$freq))
+    if (length(bad)) {
+      stop("Examinee scores need a grade, a numeric Score and a whole, non-negative ",
+           "Freq in every row. Problem in row(s): ", .ess_show(bad), ".", call. = FALSE)
+    }
   } else {
     examinees_df <- data.frame(grade = character(0), score = numeric(0), freq = numeric(0))
   }
@@ -425,22 +436,34 @@ as_ess_data <- function(x, ...) {
   }
 }
 
-# Stack the wide examinee layout (repeated Score/Freq/Grade blocks, possibly
-# separated by empty columns) into one long table.
-.ess_stack_examinees <- function(df) {
+# Examinee scores must be one long score-frequency table (grade, Score,
+# Freq). Empty rows and columns are dropped; an empty table means no
+# examinee data. A wide table, with Score/Freq/Grade blocks repeated side by
+# side (one block per grade), is refused: blocks of unequal length and the
+# empty separator columns between them make it easy to misread.
+.ess_check_examinees <- function(df) {
   if (is.null(df) || nrow(df) == 0 || ncol(df) == 0) return(data.frame())
   df <- df[, colSums(!is.na(df)) > 0, drop = FALSE]
-  # Excel readers suffix repeated header names ("Score...1"); drop that.
-  base <- sub("\\.\\.\\.[0-9]+$", "", names(df))
-  if (ncol(df) <= 3) { names(df) <- base; return(df) }
-  starts <- which(.ess_norm(base) == "SCORE")
-  if (length(starts) <= 1) return(df)
-  blocks <- lapply(starts, function(s) {
-    b <- df[, s:min(s + 2, ncol(df)), drop = FALSE]
-    names(b) <- base[s:min(s + 2, ncol(df))]
-    b[stats::complete.cases(b), , drop = FALSE]
-  })
-  do.call(rbind, blocks)
+  df <- df[rowSums(!is.na(df)) > 0, , drop = FALSE]
+  if (nrow(df) == 0 || ncol(df) == 0) return(data.frame())
+  
+  # Excel readers suffix repeated header names ("Score...1", "Score...5").
+  base <- .ess_norm(sub("\\.\\.\\.[0-9]+$", "", names(df)))
+  repeated <- intersect(base[duplicated(base)], c("SCORE", "FREQ", "GRADE", "GCA"))
+  if (length(repeated)) {
+    stop("Examinee scores must be one long table with one row per grade and score, ",
+         "and three columns: GCA (or Grade), Score and Freq (the number of examinees ",
+         "with that score). This table repeats ",
+         paste0("`", tolower(repeated), "`", collapse = ", "),
+         " in several column blocks (a wide layout), which is not accepted. ",
+         "Stack the blocks into the three columns, for example:\n",
+         "  GCA  Score  Freq\n  R3   280    12\n  R3   281    15\n  R4   290     9",
+         call. = FALSE)
+  }
+  # One block left (e.g. a sheet whose other blocks are empty): it is a long
+  # table, so drop the readers' "...N" suffixes to match the column names.
+  names(df) <- sub("\\.\\.\\.[0-9]+$", "", names(df))
+  df
 }
 
 .ess_levels <- function(grades, setup_df, levels) {

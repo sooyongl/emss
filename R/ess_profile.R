@@ -18,6 +18,9 @@ NULL
 essCW <- function(new_data, d_alpha = 1, cut_level = 2, SD = 1, empirical = TRUE, EC = 0,
                   candidates = NULL) {
 
+  
+  # new_data = d; cut_level = cuts[1]; candidates = candidates
+
   if (!identical(d_alpha, 1)) {
     stop("essCW() supports d_alpha = 1 only.", call. = FALSE)
   }

@@ -15,14 +15,14 @@
 
 pkgload::load_all(".")
 
-xlsx <- "prerun/data/example_file/aasr_emstans_file_19October2024 (2).xlsx"
+xlsx <- "prerun/data/example_file/example_0.xlsx"
 loc  <- "RP67"
 
 # 1. Input ---------------------------------------------------------------------
 
 ## 1a. Read the workbook by sheet name into the standard tables
 d <- ess_read_excel(xlsx, quiet = FALSE)   # quiet = FALSE shows the column mapping
-d                                          # print.ess_data(): overview
+
 names(d)                                   # ratings, items, levels, grades, examinees, columns
 head(d$ratings)                            # level = integer rank; label = as typed
 d$levels                                   # E < M < L for every grade

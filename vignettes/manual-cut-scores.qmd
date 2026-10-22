@@ -1,0 +1,211 @@
+---
+title: "Setting cut scores manually"
+description: >
+  Replace estimated cut scores with your own, and see how much consistency
+  and impact change.
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    html-math-method: mathjax
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    fig.width: 7
+    fig.height: 4
+    fig.align: center
+    out.width: "100%"
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(emss)
+options(width = 90, digits = 4)
+```
+
+The ESS cut scores are a recommendation. A policy body may adjust them: to
+make cuts progress smoothly across grades, to adopt the panelists' median
+instead of the modal cut, or to try a proposed value. `update()` replaces
+the modal cut scores of one or more units with values you give, and
+recomputes everything that depends on them. You can then compare the
+consistency and impact of the manual cuts with those of the estimated ones.
+
+The notation follows [How embedded standard setting works](ess-method.html).
+
+# The study
+
+The simulated study from [Getting started](getting-started.html): three
+grades, two tables of four panelists, 40 items per grade, and three levels.
+
+```{r}
+#| label: fit
+set.seed(7)
+sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
+                      sdinp = 1, ecinp = 0, n = 40, 300, 500,
+                      domains = c("Number", "Algebra", "Geometry"))
+res <- emstans(data = sim, location = "Loc_RP50")
+res
+```
+
+The Level3 cut barely rises from M1 to M2 (`r extract(res, "cutscore")[["M1-All"]][2]`
+and `r extract(res, "cutscore")[["M2-All"]][2]`) and then jumps for M3
+(`r extract(res, "cutscore")[["M3-All"]][2]`). A committee might prefer a
+smoother progression, with the M2 cut halfway between M1 and M3.
+
+# Using `update()`
+
+Give one numeric vector per unit, named as in `extract(res, "cutscore")`,
+with one cut score per cut level, in increasing order:
+
+```{r}
+#| label: update
+mid <- mean(c(extract(res, "cutscore")[["M1-All"]][2], extract(res, "cutscore")[["M3-All"]][2]))
+mid
+res_man <- update(res, `M2-All` = c(366.6, mid))
+res_man
+```
+
+Several units can be updated in one call, in any order. Each unit needs
+exactly $K - 1$ values. A unit name that doesn't exist, the wrong number of
+values, or a cut above every item location is an error. To go back to the
+estimated cuts, use the original object or run `emstans()` again.
+
+# What is recomputed
+
+For a unit with manual cuts $\tilde c_2, \dots, \tilde c_K$:
+
+1. **Pages.** Each cut is placed before the first item at or above it:
+   $\tilde p_k = \min\{\, p : b_{(p)} \ge \tilde c_k \,\}$.
+2. **Count and Weight.** Both are evaluated at the cut score itself,
+   $C_k(\tilde c_k)$ and $W_k(\tilde c_k)$. The count equals that of page
+   $\tilde p_k$, because no item lies between $b_{(\tilde p_k - 1)}$ and
+   $\tilde c_k$. The weight is lower than at $b_{(\tilde p_k)}$ whenever the
+   profile is still falling there, since $W_k$ is linear between item
+   locations with slope $(p - n_{<k})/\sigma$ after page $p$:
+   $$
+   W_k(\tilde c_k) = W_k\big(b_{(\tilde p_k)}\big) - \frac{(\tilde p_k - 1 - n_{<k})\,\big(b_{(\tilde p_k)} - \tilde c_k\big)}{\sigma}.
+   $$
+3. **Empirical levels** $o_i = 1 + \#\{\, k : \tilde c_k \le b_i \,\}$,
+   and from them the agreement, the crosstabs, the item review and the
+   impact data.
+
+The panelist cuts, the per-table modal cuts, the median and average cuts,
+and the inconsistency profiles stay as estimated. They describe the
+panelists' judgements, which a manual cut does not change.
+
+```{r}
+#| label: recomputed
+modal_all <- function(x, unit) {
+  m <- x$modal[x$modal$unit == unit & x$modal$table == "All", ]
+  m[, c("level", "page", "cut_score", "count", "weight")]
+}
+modal_all(res, "M2-All")
+modal_all(res_man, "M2-All")
+```
+
+The manual Level3 cut lies between two items. Its weight is below the weight
+at the next item's location, as the formula in step 2 says:
+
+```{r}
+#| label: weight-formula
+u <- res$units[["M2-All"]]
+a <- res$modal_items$aligned[res$modal_items$unit == "M2-All"]
+p <- which(u$location >= mid)[1]
+prof <- extract(res, "profile")[["M2-All"]]
+prof[p, "Level3 weight"] - (p - 1 - sum(a < 3)) * (u$location[p] - mid) / u$sd
+```
+
+# The cost of a manual cut
+
+The estimated cut minimizes the chosen criterion, so for the same criterion
+a manual cut can only add inconsistency:
+
+$$
+\Delta W_k = W_k(\tilde c_k) - W_k(\hat c_k) \ge 0,
+\qquad
+\Delta C_k = C_k(\tilde c_k) - C_k(\hat c_k) \ge 0
+$$
+
+under ESS-Weight and ESS-Count respectively. The other criterion can move
+either way. Here the manual Level3 cut has a larger weight, which ESS-Weight
+minimizes, but a smaller count:
+
+```{r}
+#| label: cost
+cbind(estimated = modal_all(res, "M2-All")[2, c("count", "weight")],
+      manual    = modal_all(res_man, "M2-All")[2, c("count", "weight")])
+```
+
+The profile plot marks the manual cut on the profile:
+
+```{r}
+#| label: plot
+plot(res_man, "profile", unit = "M2-All")
+```
+
+Because the cuts are ordered, the counts add up to the total level
+disagreement, $\sum_k C_k(\tilde c_k) = \sum_i \lvert a_i - o_i \rvert$ (see
+[What the minimum values add up to](ess-method.html#sec-totals)). Fewer
+inconsistent items therefore means higher agreement:
+
+```{r}
+#| label: agreement
+ag <- function(x) {
+  s <- extract(x, "detailed")$agreement
+  s[s$unit == "M2-All" & s$type == "exact", c("agree", "disagree", "weighted_kappa")]
+}
+rbind(estimated = ag(res), manual = ag(res_man))
+```
+
+This is not a contradiction. ESS-Weight puts the cut so that the number of
+items below it matches the number aligned below the level, which need not
+minimize the number of misplaced items (see [ESS-Weight is a quantile of
+the item locations](ess-method.html#sec-quantile)).
+
+# Impact and item review
+
+Impact changes only for the levels on either side of the changed cut:
+
+```{r}
+#| label: impact
+imp <- function(x) {
+  s <- extract(x, "summary")
+  s[s$unit == "M2-All", c("level", "page_from", "page_to", "cut_score", "pct_in", "pct_at_above")]
+}
+imp(res)
+imp(res_man)
+```
+
+The item review lists the items that the manual cuts place outside their
+aligned level:
+
+```{r}
+#| label: review
+rv <- extract(res_man, "review")
+rv[rv$unit == "M2-All" & rv$status != "Consistent",
+   c("item_id", "page", "aligned", "operational", "location", "distance", "status")]
+```
+
+`report(res_man)` shows all of this in the HTML report, with the manual units
+named in its header.
+
+# Another common choice: the panelists' median
+
+Instead of the modal cut, a committee may adopt the median of the panelists'
+cuts:
+
+```{r}
+#| label: median
+md <- extract(res, "individual")$median
+md <- md[md$table == "All", ]
+med_cuts <- split(md$cut_score, md$unit)
+med_cuts
+res_med <- do.call(update, c(list(res), med_cuts))
+summary(res_med)
+```
+
+Here the modal and median columns show the same values, because the modal
+cuts were replaced by the medians.

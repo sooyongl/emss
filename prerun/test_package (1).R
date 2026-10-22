@@ -130,6 +130,10 @@ d_csv <- ess_data(
   columns = list(ratings = list(panelist = "Rater", item_id = 3, level = "Judgment"),
                  items   = list(item_id = "ItemCode")),
   quiet = FALSE)
+
+d_csv$ratings
+d_csv$items
+
 res_csv <- emstans(data = d_csv, location = "RP67")
 check(isTRUE(all.equal(extract(res_csv, "cutscore"), extract(res, "cutscore"))),
       "CSV input gives the same cut scores as the workbook")

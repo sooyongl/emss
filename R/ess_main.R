@@ -100,12 +100,17 @@ emstans <- function(file = NULL,
     ess_read_excel(file, columns = columns)
   }
 
-  settings <- list(location = location, method = method, smooth = isTRUE(smooth),
-                   by_domain = isTRUE(by_domain), domains = domains,
-                   font_size = font_size, digits = digits, source = file)
+  settings <- list(location = location, 
+                   method = method, 
+                   smooth = isTRUE(smooth),
+                   by_domain = isTRUE(by_domain), 
+                   domains = domains,
+                   font_size = font_size, 
+                   digits = digits, 
+                   source = file)
 
   units <- ess_units(d, location, by_domain = by_domain, domains = domains, grades = grades)
-  ess_compute(d, units, settings)
+  ess_compute(data=d, units, settings)
 }
 
 # Translate former argument names, with one warning listing the changes.
@@ -164,12 +169,15 @@ ess_compute <- function(data, units, settings, manual = NULL) {
 }
 
 # Replace the modal (all tables) cuts of some units with given cut scores.
-# Each cut's page is the first item at or above the cut score; operational
-# levels, count and weight follow from that page.
+# Each cut's page is the first item at or above the cut score. Count and
+# weight are evaluated at the cut score itself (the count equals that of its
+# page; the weight is linear between item locations, so it can be lower than
+# the weight at the page's location).
 apply_manual_cuts <- function(est, units, manual) {
   for (uid in names(manual)) {
     u <- units[[uid]]; cs <- manual[[uid]]
-    prof <- est$modal_fits[[uid]]$profile
+    mi <- est$modal_items$unit == uid
+    aligned <- est$modal_items$aligned[mi]
     rows <- vapply(cs, function(x) {
       r <- which(u$location >= x)[1]
       if (is.na(r)) stop("Cut score ", x, " for `", uid, "` is above every item location.",
@@ -182,10 +190,10 @@ apply_manual_cuts <- function(est, units, manual) {
     m <- m[order(m$level), ]
     m$page <- rows
     m$cut_score <- cs
-    m$count <- vapply(seq_along(ks), function(j) prof[[paste0("L", ks[j], "_C")]][rows[j]], numeric(1))
-    m$weight <- vapply(seq_along(ks), function(j) prof[[paste0("L", ks[j], "_W")]][rows[j]], numeric(1))
+    at_cut <- ess_profile(u$location, aligned, u$n_levels, u$sd, candidates = cs)
+    m$count <- vapply(seq_along(ks), function(j) at_cut[[paste0("L", ks[j], "_C")]][j], numeric(1))
+    m$weight <- vapply(seq_along(ks), function(j) at_cut[[paste0("L", ks[j], "_W")]][j], numeric(1))
     est$modal[sel, ] <- m
-    mi <- est$modal_items$unit == uid
     est$modal_items$operational[mi] <- operational_levels(u$location, cs)
   }
   est

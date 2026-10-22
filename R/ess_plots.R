@@ -18,8 +18,9 @@ plot.ESS <- function(x, type = c("profile", "impact"), unit = NULL, ...) {
 }
 
 # Inconsistency of every candidate cut (each item location) for each cut
-# level, with the selected cut marked.
-plot_profile <- function(x, unit) {
+# level, with the selected cut marked. `interactive = TRUE` (used by the
+# HTML report) labels the cuts with plain text, which plotly can draw.
+plot_profile <- function(x, unit, interactive = FALSE) {
   if (!unit %in% names(x$units)) stop("Unknown unit `", unit, "`.", call. = FALSE)
   u <- x$units[[unit]]; prof <- x$profiles[[unit]]
   suffix <- if (x$settings$method == "weight") "_W" else "_C"
@@ -33,6 +34,16 @@ plot_profile <- function(x, unit) {
   m$inconsistency <- if (x$settings$method == "weight") m$weight else m$count
 
   fs <- x$settings$font_size
+  m$label <- paste0(m$cut_level, "\n", signif(m$cut_score, 4))
+  # Labels sit above the curves, one per cut line, so they neither cover the
+  # curves nor run off the panel.
+  cut_labels <- if (interactive) {
+      top <- max(d$inconsistency, na.rm = TRUE)
+      geom_text(data = m, aes(x = .data$cut_score, y = top * 1.15, label = .data$label),
+              size = fs * 5 / 14 * .75, show.legend = FALSE)
+  } else {
+      geom_label(data = m, aes(x = .data$cut_score, y = Inf, label = .data$label, hjust = .data$hjust), vjust = 1.1, size = fs * 5 / 14 * .75, label.size = 0, fill = "white", lineheight = .9, show.legend = FALSE)
+  }
   ggplot(d, aes(x = .data$location, y = .data$inconsistency, colour = .data$cut_level)) +
     geom_line(alpha = .5) +
     geom_point(size = 1, alpha = .6) +
@@ -40,10 +51,12 @@ plot_profile <- function(x, unit) {
                linetype = "dashed") +
     geom_point(data = m, aes(x = .data$cut_score, y = .data$inconsistency), size = 3, shape = 21,
                fill = "white", stroke = 1.5) +
-    geom_text(data = m, aes(x = .data$cut_score, y = .data$inconsistency,
-                            label = paste0(.data$cut_level, ": ", round(.data$cut_score, 3),
-                                           " (p. ", .data$page, ")")),
-              vjust = -1, fontface = "bold", size = fs * 5 / 14 * .8, show.legend = FALSE) +
+    # geom_text(data = m, aes(x = .data$cut_score, y = .data$inconsistency,
+    #                         label = paste0(.data$cut_level, ": ", round(.data$cut_score, 3),
+    #                                        " (p. ", .data$page, ")")),
+    #           vjust = -1, fontface = "bold", size = fs * 5 / 14 * .8, show.legend = FALSE) +
+    cut_labels +
+    scale_y_continuous(expand = expansion(mult = c(0.03, 0.22))) +
     labs(x = x$settings$location,
          y = if (x$settings$method == "weight") "Weighted inconsistency" else "Inconsistent items",
          colour = "Cut for", title = unit) +

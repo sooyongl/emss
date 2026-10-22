@@ -1,0 +1,230 @@
+---
+title: "Getting started with emss"
+description: >
+  Install emss, prepare the inputs, estimate cut scores and read the results.
+format:
+  html:
+    toc: true
+    toc-depth: 2
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    fig.width: 7
+    fig.height: 4
+    fig.align: center
+    out.width: "100%"
+---
+
+```{r}
+#| label: setup
+#| include: false
+options(width = 90, digits = 4)
+```
+
+emss estimates cut scores with **embedded standard setting** (ESS; Lewis &
+Cook, 2020). Panelists align each item to the performance level whose
+descriptor it matches. emss then places each cut score where the items'
+locations on the reporting scale agree best with those alignments. This
+article covers the basic workflow. [How embedded standard setting
+works](ess-method.html) explains what is computed and why, with a worked
+example and the underlying mathematics.
+
+# Installation
+
+```{r}
+#| eval: false
+# install.packages("remotes")
+remotes::install_github("sooyongl/emss")
+```
+
+```{r}
+library(emss)
+```
+
+# What emss needs
+
+| Input | Required | One row per | Main columns |
+|:--|:--|:--|:--|
+| Ratings | yes | panelist × item (× round) | grade, panelist, item ID, aligned level; optional table and round |
+| Items | yes | item | grade, item ID, one or more location columns (e.g., `RP67`); optional `Domain`, `Order_of_Difficulty` |
+| Setup | optional | grade | `Level Options` (level labels, lowest to highest), `SD`, `EC` |
+| Examinee scores | optional | grade × score | grade, `Score`, `Freq` (long format), for impact data |
+
+The location is each item's position on the reporting scale, typically a
+response-probability location such as RP67. The item table may hold several
+location columns. The `location` argument of `emstans()` picks one.
+
+# A simulated study
+
+`genFakeDataSet()` simulates a complete study: here three grades, two tables
+of four panelists each, 40 items per grade, three performance levels, and
+three content domains.
+
+```{r}
+#| label: simulate
+set.seed(7)
+sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
+                      sdinp = 1, ecinp = 0, n = 40, 300, 500,
+                      domains = c("Number", "Algebra", "Geometry"))
+names(sim)
+head(sim$rating[, c("GCA", "Round", "Table", "Panelist", "Item_ID", "ALD")], 3)
+head(sim$item_data, 3)
+```
+
+`sdinp` and `ecinp` must be named here: the unnamed values that follow `n`
+(300 and 500) are the range of the item locations.
+
+# Estimating cut scores
+
+```{r}
+#| label: fit
+res <- emstans(data = sim, location = "Loc_RP50")
+res
+```
+
+Each grade is analysed separately. For each one, emss estimates a cut score
+for every panelist and for the **modal** alignment across panelists, per
+table and for all tables together. The printed cut scores are the modal
+cuts for all tables. Each cut is named by the level it opens: `Level2` is
+the lowest score in Level 2.
+
+The main options are:
+
+| Argument | Values |
+|:--|:--|
+| `location` | name of the item location column, such as `"RP67"` |
+| `method` | `"weight"` (ESS-Weight, default) or `"count"` (ESS-Count) |
+| `grades` | grades to analyse, by name or position (default: all) |
+| `by_domain`, `domains` | also analyse each content domain, or the listed ones |
+| `smooth` | `TRUE` to take cuts from a GAM-smoothed inconsistency profile |
+
+# Results
+
+`summary()` puts the modal cut next to the median and average of the
+panelists' cuts, and adds the agreement between aligned and empirical
+levels:
+
+```{r}
+#| label: summary
+summary(res)
+```
+
+`extract()` returns the results as data frames, with level labels as
+ordered factors:
+
+```{r}
+#| label: extract
+extract(res, "cutscore")                    # modal cut scores, one vector per unit
+ind <- extract(res, "individual")           # panelist, modal, median, average
+head(ind$panelist[, c("unit", "table", "panelist", "correlation", "cut_level",
+                      "page", "cut_score")])
+extract(res, "detailed")$agreement          # agreement and weighted kappa
+im <- extract(res, "summary")               # impact data
+im[im$unit == "M1-All", ]
+rv <- extract(res, "review")                # items whose alignment disagrees with the cuts
+head(rv[rv$status != "Consistent", c("unit", "item_id", "aligned", "operational",
+                                     "location", "distance", "status")])
+```
+
+Other options are `"profile"` (the inconsistency profile of each unit) and
+`"all"`.
+
+# Plots
+
+The inconsistency profile shows, for every candidate cut, how inconsistent
+the items would be. The selected cuts are at the minima:
+
+```{r}
+#| label: plot-profile
+plot(res, "profile", unit = "M1-All")
+```
+
+The impact plots show cut scores and examinee percentages across grades:
+
+```{r}
+#| label: plot-impact
+#| fig-height: 3.5
+p <- plot(res, "impact")
+names(p)
+p$cut_scores
+p$percent_in
+```
+
+Both are ggplot objects and can be modified with the usual ggplot2 functions.
+
+# Report
+
+`report()` builds an interactive HTML report with every table and plot,
+sections for individual cuts, agreement, impact and item review:
+
+```{r}
+#| eval: false
+report(res)                       # opens in the viewer
+report(res, what = "review")      # one section only
+```
+
+# More analyses
+
+```{r}
+#| label: more
+# ESS-Count instead of ESS-Weight
+emstans(data = sim, location = "Loc_RP50", method = "count")
+
+# Each content domain as well as all items, for grade M1 only
+res_dom <- emstans(data = sim, location = "Loc_RP50", grades = "M1", by_domain = TRUE)
+extract(res_dom, "cutscore")
+```
+
+When the ratings contain several rounds, each round is analysed separately
+and named accordingly, for example `M1-All Round 2`.
+
+# Your own data
+
+An EmStanS Excel workbook (sheets Setup, Panelists, Ratings, ItemMetaData,
+ExamineeMetaData) can be passed directly:
+
+```{r}
+#| eval: false
+res <- emstans("my_study.xlsx", location = "RP67")
+```
+
+Data frames or CSV files with other layouts go through `ess_data()`. Only
+ratings and items are required. Level labels, SD and EC can come from a
+setup table, from arguments, or both (arguments win). Columns whose names
+differ from the defaults are mapped by name or position:
+
+```{r}
+#| eval: false
+d <- ess_data(
+  ratings   = "ratings.csv",
+  items     = "items.csv",
+  examinees = "scores.csv",                            # Grade, Score, Freq
+  levels    = c("Basic", "Proficient", "Advanced"),    # lowest to highest
+  sd        = 30,
+  ec        = 5,
+  columns   = list(ratings = list(panelist = "Rater", level = "Judgment"))
+)
+d                                  # what was read
+res <- emstans(data = d, location = "RP67")
+```
+
+Level labels can also differ by grade, for example
+`levels = list(G4 = c("E", "M", "L"), G5 = c("B", "P", "A"))`. Every table,
+plot and report uses the labels, in level order.
+
+# Next steps
+
+* [How embedded standard setting works](ess-method.html): ESS-Count and
+  ESS-Weight with a worked example, and the mathematics behind each result.
+* [Setting cut scores manually](manual-cut-scores.html): evaluate cut scores
+  you set yourself.
+* [Bootstrapping cut scores](bootstrapping.html): the sampling variability of
+  cut scores.
+
+# References
+
+Lewis, D., & Cook, R. (2020). Embedded standard setting: Aligning
+standard-setting methodology with contemporary assessment design principles.
+*Educational Measurement: Issues and Practice, 39*(1), 8–21.
+https://doi.org/10.1111/emip.12318

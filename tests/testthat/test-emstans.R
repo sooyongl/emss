@@ -36,3 +36,21 @@ test_that("update() rejects unknown names and wrong lengths", {
   expect_error(update(res, `M9-All` = c(1, 2)), "Unknown unit")
   expect_error(update(res, `M1-All` = 150), "needs 2 numeric")
 })
+
+
+test_that("count and weight of a manual cut are taken at the cut score itself", {
+  res <- run_fake()
+  u <- res$units[["M1-All"]]
+  mi <- res$modal_items[res$modal_items$unit == "M1-All", ]
+  # a cut strictly between two item locations
+  cs <- c(mean(u$location[8:9]), mean(u$location[20:21]))
+  new <- update(res, `M1-All` = cs)
+  m <- new$modal[new$modal$unit == "M1-All" & new$modal$table == "All", ]
+  for (j in 1:2) {
+    k <- j + 1
+    bad <- (mi$aligned >= k & mi$location < cs[j]) | (mi$aligned < k & mi$location >= cs[j])
+    expect_equal(m$count[j], sum(bad))
+    expect_equal(m$weight[j], sum(abs(mi$location[bad] - cs[j])) / u$sd)
+  }
+  expect_equal(m$page, vapply(cs, function(x) which(u$location >= x)[1], integer(1)))
+})

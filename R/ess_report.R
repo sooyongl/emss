@@ -133,7 +133,7 @@ report_detailed <- function(x, tb) {
     ag <- tb$agreement[tb$agreement$unit == uid, ]
     prof <- labelled_profile(x, uid)
     bslib::nav_panel(uid,
-      report_card("Inconsistency profile (modal alignment)", plotly::ggplotly(plot_profile(x, uid))),
+                     report_card("Inconsistency profile (modal alignment)", plotly::ggplotly(plot_profile(x, uid, interactive = TRUE))),
       bslib::layout_columns(
         col_widths = c(6, 6),
         report_card("Aligned vs empirical level", crosstab_html(ct[ct$type == "exact", ]),

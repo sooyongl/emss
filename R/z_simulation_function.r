@@ -35,14 +35,25 @@ NULL
 #' @param ... Additional numeric arguments passed to `runif()`, typically the
 #'   minimum and maximum score values used to generate item locations. For
 #'   example, `100, 300` generates item locations between 100 and 300.
-#'
+#'   
+#' @param domains The content subdomains of the items, added to the item data
+#'   as a `Domain` column. Either a character vector of subdomain names (for
+#'   example `c("Number", "Algebra", "Geometry")`), or the number of
+#'   subdomains, which are then named from `"Alg"`, `"Geom"`, `"Calc"`,
+#'   `"Prob"`, `"Stat"`, `"Num"` (or `"D1"`, `"D2"`, ... beyond six). Items are
+#'   split as evenly as possible across subdomains and assigned at random, so
+#'   every subdomain spans the whole location range. `NULL` adds no `Domain`
+#'   column. Must be named, since it follows `...`.
+#
 #' @return A list of simulated data frames formatted for use with `emstans()`.
 #'   The returned list contains test setup information, panelist information,
 #'   item ratings, item metadata, and student data.
 #'
 #' @details
 #' This function is mainly intended for package testing, examples, and
-#' demonstrations. The returned object mimics the data structure expected by
+#' demonstrations. Use the `Domain` column with `emstans(by_domain = TRUE)` to
+#' also estimate cut scores within each subdomain. The returned object mimics
+#' the data structure expected by
 #' `emstans()`, allowing users to inspect the required format before preparing
 #' their own data.
 #'
@@ -60,11 +71,21 @@ NULL
 #'   100,
 #'   300
 #' )
+#' 
+#' # Three named subdomains
+#' fake_data <- genFakeDataSet(ngca = 2, ntable = 2, npanelist = 4,
+#'                             cor_val = 0.6, nlevel = 3, sdinp = 1, ecinp = 0,
+#'                             n = 45, 300, 500,
+#'                             domains = c("Number", "Algebra", "Geometry"))
+#' table(fake_data$item_data$GCA, fake_data$item_data$Domain)
+#'
+#' # Four subdomains with default names (domains = 4), or none (domains = NULL)
 #' }
 #' @export
-genFakeDataSet <- function(ngca, ntable, npanelist, cor_val, nlevel, sdinp = 1, ecinp = 0, n,...) {
-  # ngca = 3; cor_val = 0.2; n = 100; nlevel = 3; input <- list(100,300);ntable = 5; npanelist = 5; sdinp = 1; ecinp = 0; ndomain = NULL
+genFakeDataSet <- function(ngca, ntable, npanelist, cor_val, nlevel, sdinp = 1, ecinp = 0, n, ...,
+                           domains = c("Alg", "Geom", "Calc", "Prob")) {
   input <- list(...)
+  domains <- fake_domains(domains, n)
 
   gca <- paste0("M",1:ngca)
 
@@ -118,7 +139,7 @@ genFakeDataSet <- function(ngca, ntable, npanelist, cor_val, nlevel, sdinp = 1, 
     }
 
     setup_list[[i]] <- genSetup(sim_data, gca_inp, table_inp, sdinp, ecinp)
-    itemmeta_list[[i]] <- genItemMetaData(sim_data, gca_inp)
+    itemmeta_list[[i]] <- genItemMetaData(sim_data, gca_inp, domains)
     examinee_list[[i]] <- genExamineeData(sim_data, gca_inp)
 
     adjustment0 <- adjustment0 + ceiling(runif(1, 10, 40))
@@ -260,37 +281,34 @@ genRating <- function(sim_data, gca_inp, panel_id, table_id) {
   )
 }
 
+#' Check and name the subdomains for simulated items
+#' @noRd
+fake_domains <- function(domains, n) {
+  if (is.null(domains) || length(domains) == 0) return(NULL)
+  if (is.numeric(domains)) {
+    if (length(domains) != 1 || is.na(domains) || domains < 1 || domains != round(domains))
+      stop("`domains` must be subdomain names or a single whole number.", call. = FALSE)
+    pool <- c("Alg", "Geom", "Calc", "Prob", "Stat", "Num")
+    domains <- if (domains <= length(pool)) pool[seq_len(domains)] else paste0("D", seq_len(domains))
+  }
+  domains <- as.character(domains)
+  if (anyNA(domains) || any(!nzchar(trimws(domains))) || anyDuplicated(domains))
+    stop("`domains` must be distinct, non-empty names.", call. = FALSE)
+  if (n < length(domains))
+    stop("`n` (", n, " items per grade) is smaller than the number of subdomains (",
+         length(domains), ").", call. = FALSE)
+  domains
+}
+
 #' Generate an item meta data
 #' @noRd
-genItemMetaData <- function(sim_data, GCA) {
+genItemMetaData <- function(sim_data, GCA, domains = NULL) {
   # GCA = gca_inp
   Item_ID <- sim_data[["Item_ID"]]
   location <- sim_data[["location"]]
   OOD <- sim_data[["OOD"]]
 
-  if(length(OOD) >= 30) {
-
-    # n_ceiling = 4
-    # name_domain <- LETTERS[1:n_ceiling]
-    name_domain <- c("Alg", "Geom", "Calc", "Prob")
-    n_ceiling = length(name_domain)
-
-    domains <- rep(name_domain, floor(length(OOD)/n_ceiling))
-    domains <- append(domains, rep(name_domain[1], length(OOD) - length(domains)))
-    domains <- domains[sample(1:length(domains))]
-
-    tibble(
-      GCA = GCA,
-      Domain = domains,
-      Item_ID = Item_ID,
-      Total_points = 1,
-      Point = 1,
-      Order_of_Difficulty = OOD,
-      Loc_RP50 = location
-    )
-  } else {
-
-    tibble(
+    out <- tibble(
       GCA = GCA,
       Item_ID = Item_ID,
       Total_points = 1,
@@ -298,7 +316,12 @@ genItemMetaData <- function(sim_data, GCA) {
       Order_of_Difficulty = OOD,
       Loc_RP50 = location
     )
+    if (length(domains)) {
+      # As even a split as possible, in random order over the location range.
+      dom <- rep_len(domains, length(OOD))
+      out <- tibble::add_column(out, Domain = dom[sample.int(length(dom))], .after = "GCA")
   }
+  out
 }
 
 #' Generate an examinee data

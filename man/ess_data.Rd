@@ -27,8 +27,12 @@ ess_data(
 path to a `.csv` file. Its `Level Options` column lists the level labels
 from lowest to highest, separated by commas.}
 
-\item{examinees}{Optional examinee scores (`Score`, `Freq`, grade), a data
-frame or a path to a `.csv` file. Used for impact data.}
+\item{examinees}{Optional score frequencies for impact data: a data frame
+or a path to a `.csv` file in long format, one row per grade and score,
+with three columns: grade (`GCA` or `Grade`), `Score` (on the same scale
+as the item locations) and `Freq` (number of examinees with that score).
+Wide tables with repeated Score/Freq/Grade blocks side by side are not
+accepted.}
 
 \item{levels}{Level labels from lowest to highest. A character vector
 applies to every grade; a named list gives labels per grade, for example

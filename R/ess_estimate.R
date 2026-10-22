@@ -14,6 +14,9 @@ NULL
 # Build the analysis units --------------------------------------------------
 
 ess_units <- function(data, location, by_domain = FALSE, domains = NULL, grades = NULL) {
+  
+  # data=d; 
+  
   loc <- location
   items <- data$items
   if (!loc %in% names(items)) {
@@ -43,7 +46,7 @@ ess_units <- function(data, location, by_domain = FALSE, domains = NULL, grades 
   }
 
   units <- list()
-  for (g in use) {
+  for (g in use) { # g = use[1]
     gi <- items[items$grade == g, , drop = FALSE]
     miss <- gi$item_id[is.na(gi[[loc]])]
     if (length(miss)) {
@@ -57,8 +60,8 @@ ess_units <- function(data, location, by_domain = FALSE, domains = NULL, grades 
       subsets <- c(subsets, sort(doms))
     }
     rounds <- unique(data$ratings$round[data$ratings$grade == g])
-    for (rd in rounds) {
-      for (sb in subsets) {
+    for (rd in rounds) {    # rd = rounds[1]
+      for (sb in subsets) { # sb = subsets[1]
         ui <- if (sb == "All") gi else gi[gi$domain %in% sb, , drop = FALSE]
         if (!nrow(ui)) next
         ui <- ui[order(ui[[loc]], ui$order, ui$row), , drop = FALSE]
@@ -107,6 +110,7 @@ unit_ratings <- function(data, unit) {
 # item location, in item order), columns L2_C, L3_C, ..., L2_W, L3_W, ...
 # Weights are divided by SD and stripped of floating-point noise.
 ess_profile <- function(location, level, n_levels, sd = 1, candidates = location) {
+  
   d <- data.frame(location = location, ALD = level)
   cuts <- seq.int(2, n_levels)
   m <- length(candidates)
@@ -165,6 +169,9 @@ safe_cor <- function(x, y) {
 # each item's operational level, and the alignment-location correlation.
 ess_fit <- function(location, level, n_levels, sd = 1,
                     method = c("weight", "count"), smooth = FALSE) {
+  
+  # location = u$location; level= ur$levels[, 1]; n_levels = u$n_levels; sd= u$sd
+  
   method <- match.arg(method)
   profile <- ess_profile(location, level, n_levels, sd)
   ks <- seq.int(2, n_levels)
@@ -201,9 +208,12 @@ ess_fit <- function(location, level, n_levels, sd = 1,
 # Fit every panelist and every modal group (each table, and all tables) in
 # every unit. Returns a list of tidy data frames.
 ess_estimate <- function(data, units, method = "weight", smooth = FALSE) {
+  
+  # method = settings$method; smooth = settings$smooth
+  
   panel_rows <- list(); modal_rows <- list(); modal_items <- list(); fits <- list()
 
-  for (u in units) {
+  for (u in units) { # u = units[[1]]
     ur <- unit_ratings(data, u)
     p_fits <- lapply(seq_along(ur$panelist), function(j)
       ess_fit(u$location, ur$levels[, j], u$n_levels, u$sd, method, smooth))

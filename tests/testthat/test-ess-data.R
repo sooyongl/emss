@@ -80,11 +80,43 @@ test_that("a panelist rating an item twice in one round is an error", {
                "rated more than once")
 })
 
-test_that("the wide examinee layout is stacked", {
+test_that("examinee scores must be a long score-frequency table", {
+  d <- fake_study()
+  long <- data.frame(GCA = c("M1", "M1", "M2"), Score = c(300, 310, 320), Freq = c(2, 3, 4))
+  e <- ess_data(d$rating, d$item_data, setup = d$setup, examinees = long)
+  expect_equal(sum(e$examinees$freq), 9)
+
+  # Wide layout: Score/Freq/Grade blocks side by side, as read from Excel
   wide <- data.frame(Score...1 = c(300, 310), Freq...2 = c(2, 3), Grade...3 = "M1",
                      ...4 = NA, Score...5 = c(320, NA), Freq...6 = c(4, NA), Grade...7 = c("M2", NA),
                      check.names = FALSE)
-  long <- emss:::.ess_stack_examinees(wide)
-  expect_equal(nrow(long), 3)
-  expect_equal(names(long), c("Score", "Freq", "Grade"))
+  expect_error(ess_data(d$rating, d$item_data, setup = d$setup, examinees = wide),
+               "one long table")
+
+  # Freq is required, and must be a whole non-negative number
+  expect_error(ess_data(d$rating, d$item_data, setup = d$setup, examinees = long[, 1:2]),
+               "freq")
+  long$Freq[2] <- 2.5
+  expect_error(ess_data(d$rating, d$item_data, setup = d$setup, examinees = long),
+               "whole, non-negative")
+
+  # An empty sheet means no examinee data
+  empty <- data.frame(Score = numeric(0), Freq = numeric(0), GCA = character(0))
+  expect_equal(nrow(ess_data(d$rating, d$item_data, setup = d$setup, examinees = empty)$examinees), 0)
+})
+
+test_that("fake data can have any number of named subdomains", {
+  sim <- function(...) withr::with_seed(1, genFakeDataSet(ngca = 2, ntable = 1, npanelist = 3, cor_val = 0.6,
+                                                          nlevel = 3, sdinp = 1, ecinp = 0, n = 40, 300, 500, ...))
+  d3 <- sim(domains = c("Number", "Algebra", "Geometry"))
+  expect_equal(sort(as.vector(table(d3$item_data$Domain[d3$item_data$GCA == "M1"]))), c(13, 13, 14))
+  expect_setequal(unique(d3$item_data$Domain), c("Number", "Algebra", "Geometry"))
+  expect_setequal(unique(sim(domains = 4)$item_data$Domain), c("Alg", "Geom", "Calc", "Prob"))
+  expect_false("Domain" %in% names(sim(domains = NULL)$item_data))
+  expect_error(sim(domains = c("A", "A")), "distinct")
+  expect_error(sim(domains = 2.5), "whole number")
+  
+  res <- suppressMessages(emstans(data = d3, location = "Loc_RP50", by_domain = TRUE))
+  expect_setequal(names(extract(res, "cutscore")),
+                  paste0(rep(c("M1", "M2"), each = 4), "-", c("All", "Algebra", "Geometry", "Number")))
 })
