@@ -75,7 +75,7 @@
 
 
 
-    <p>This article explains what emss computes and why. It works through a 12-item example by hand, checks every hand calculation against emss, and then states the mathematical properties of the two criteria, ESS-Count and ESS-Weight, with short proofs. For day-to-day use of the package, start with <a href="getting-started.html">Getting started</a>. <a href="manual-cut-scores.html">Manual cut scores</a> and the <a href="bootstrapping.html">bootstrap</a> have their own articles.</p>
+    <p>This article explains what <code>emss</code> computes and why. It works through a 12-item example by hand, checks every hand calculation against <code>emss</code>, and then states the mathematical properties of the two criteria, ESS-Count and ESS-Weight, with short proofs. For day-to-day use of the package, start with <a href="getting-started.html">Getting started</a>. <a href="manual-cut-scores.html">Manual cut scores</a>, the <a href="bootstrapping.html">bootstrap</a>, and <a href="item-locations.html">Item Location</a> have their own articles.</p>
 <section class="section level2" data-number="1"><h2 data-number="1" id="the-idea">
 <span class="header-section-number">1</span> The idea<a class="anchor" aria-label="anchor" href="#the-idea"></a>
 </h2>
@@ -88,9 +88,9 @@
 <p>An item on the wrong side of a cut is <strong>inconsistent</strong> with that cut. ESS places every cut where inconsistency is smallest. The two versions differ only in how they measure it:</p>
 <ul>
 <li>
-<strong>ESS-Count</strong> counts the inconsistent items.</li>
+<strong>ESS-Count</strong> counts the inconsistent items (i.e., where matters, not how far).</li>
 <li>
-<strong>ESS-Weight</strong> adds up how far the inconsistent items are from the cut on the location scale.</li>
+<strong>ESS-Weight</strong> adds up how far the inconsistent items are from the cut on the location scale (i.e., how far matters, not where).</li>
 </ul>
 <p>Lewis, Lee and Choi (2021) compared the two algorithms.</p>
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="notation">
@@ -165,7 +165,7 @@
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">items</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  Grade   <span class="op">=</span> <span class="st">"G5"</span>,</span>
-<span>  Item_ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"I%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
+<span>  Item_ID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"I0"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">9</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"I"</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  RP67    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">212</span>, <span class="fl">224</span>, <span class="fl">231</span>, <span class="fl">239</span>, <span class="fl">246</span>, <span class="fl">252</span>, <span class="fl">258</span>, <span class="fl">265</span>, <span class="fl">271</span>, <span class="fl">280</span>, <span class="fl">288</span>, <span class="fl">297</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Basic"</span>, <span class="st">"Proficient"</span>, <span class="st">"Advanced"</span><span class="op">)</span></span>
@@ -225,7 +225,7 @@ a_i = \operatorname*{arg\,max}_{\ell} \; \#\{\, j : a_{ij} = \ell \,\}.
 r_j = \operatorname{cor}\big( (a_{1j}, \dots, a_{nj}),\; (b_1, \dots, b_n) \big).
 \]</span></p>
 <p>If panelists have equal correlations, the one whose ID comes first in sorted order wins. Modal levels are computed for each table and for all tables together. The all-tables modal result is the one used for agreement, the item review and impact.</p>
-<p>In the example, item I03 got three different levels, one from each panelist:</p>
+<p>In the example, item <code>I03</code> got three different levels, one from each panelist:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">items</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Item_ID"</span>, <span class="st">"RP67"</span><span class="op">)</span><span class="op">]</span>, <span class="va">alignments</span><span class="op">)</span></span>
@@ -238,7 +238,7 @@ r_j = \operatorname{cor}\big( (a_{1j}, \dots, a_{nj}),\; (b_1, \dots, b_n) \big)
 <span><span class="co">#&gt;   Item_ID RP67 P1 P2 P3 modal</span></span>
 <span><span class="co">#&gt; 3     I03  231  2  1  3     2</span></span></code></pre></div>
 </div>
-<p>P1 has the highest correlation, so I03 takes P1’s level, Proficient (2). The correlations are the same ones emss reports with each panelist’s cut scores:</p>
+<p>P1 has the highest correlation, so <code>I03</code> takes P1’s level, Proficient (2). The correlations are the same ones <code>emss</code> reports with each panelist’s cut scores:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pan</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract.ESS.html">extract</a></span><span class="op">(</span><span class="va">res_w</span>, <span class="st">"individual"</span><span class="op">)</span><span class="op">$</span><span class="va">panelist</span></span>
@@ -289,11 +289,11 @@ Figure 1: Two candidate Proficient cuts. Filled points are inconsistent items; 
 </div>
 </div>
 </div>
-<p>At <span class="math inline">\(c = 231\)</span>, two Basic items, I05 and I06, are at or above the cut, at distances 15 and 21: <span class="math inline">\(C_2 = 2\)</span> and <span class="math inline">\(W_2 = 36\)</span>. At <span class="math inline">\(c = 239\)</span>, the same two items are closer (7 and 13), but the Proficient item I03 at 231 is now below the cut (distance 8): <span class="math inline">\(C_2 = 3\)</span> and <span class="math inline">\(W_2 = 28\)</span>. Count prefers 231 and Weight prefers 239.</p>
+<p>At <span class="math inline">\(c = 231\)</span>, two Basic items, <code>I05</code> and <code>I06</code>, are at or above the cut, at distances 15 and 21: <span class="math inline">\(C_2 = 2\)</span> and <span class="math inline">\(W_2 = 36\)</span>. At <span class="math inline">\(c = 239\)</span>, the same two items are closer (7 and 13), but the Proficient item I03 at 231 is now below the cut (distance 8): <span class="math inline">\(C_2 = 3\)</span> and <span class="math inline">\(W_2 = 28\)</span>. Count prefers 231 and Weight prefers 239.</p>
 </section><section class="section level2" data-number="6"><h2 data-number="6" id="step-3-the-profile-and-the-cut">
 <span class="header-section-number">6</span> Step 3: the profile and the cut<a class="anchor" aria-label="anchor" href="#step-3-the-profile-and-the-cut"></a>
 </h2>
-<p>The <strong>inconsistency profile</strong> evaluates <span class="math inline">\(C_k\)</span> and <span class="math inline">\(W_k\)</span> at every candidate. emss uses the item locations themselves as candidates (the next section shows that nothing is lost). A direct implementation of the definitions takes a few lines:</p>
+<p>The <strong>inconsistency profile</strong> evaluates <span class="math inline">\(C_k\)</span> and <span class="math inline">\(W_k\)</span> at every candidate. <code>emss</code> uses the item locations themselves as candidates (the next section shows that nothing is lost). A direct implementation of the definitions takes a few lines:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ess_by_hand</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span>, <span class="va">a</span>, <span class="va">k</span>, <span class="va">sd</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">{</span></span>
@@ -320,7 +320,7 @@ Figure 1: Two candidate Proficient cuts. Filled points are inconsistent items; 
 <span><span class="co">#&gt; 11   11  288       3  6 184  2  25</span></span>
 <span><span class="co">#&gt; 12   12  297       3  7 247  3  52</span></span></code></pre></div>
 </div>
-<p>emss returns the same profile for the modal alignment:</p>
+<p><code>emss</code> returns the same profile for the modal alignment:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">emss_prof</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/extract.ESS.html">extract</a></span><span class="op">(</span><span class="va">res_w</span>, <span class="st">"profile"</span><span class="op">)</span><span class="op">[[</span><span class="st">"G5-All"</span><span class="op">]</span><span class="op">]</span></span>
@@ -403,7 +403,7 @@ l_k(p) = \#\{\, i \in L_k : \text{page}(i) \ge p \,\}
 <li>
 <span class="math inline">\(W_k(c)\)</span> is linear on each interval <span class="math inline">\([b_{(p-1)}, b_{(p)}]\)</span> and continuous, because an item that crosses the cut is at distance 0 when it does.</li>
 </ul>
-<p>A linear function on an interval is smallest at one of its ends, so the minimum of <span class="math inline">\(W_k\)</span> over all <span class="math inline">\(c \le b_{(n)}\)</span> is reached at an item location, and the same holds for <span class="math inline">\(C_k\)</span>. The only cuts not tried are those above the hardest item, which would leave level <span class="math inline">\(k\)</span> with no items. emss therefore always places a cut on an item, and the cut item’s page is reported with it.</p>
+<p>A linear function on an interval is smallest at one of its ends, so the minimum of <span class="math inline">\(W_k\)</span> over all <span class="math inline">\(c \le b_{(n)}\)</span> is reached at an item location, and the same holds for <span class="math inline">\(C_k\)</span>. The only cuts not tried are those above the hardest item, which would leave level <span class="math inline">\(k\)</span> with no items. <code>emss</code> therefore always places a cut on an item, and the cut item’s page is reported with it.</p>
 </section><section class="level2" data-number="7.2"><h3 data-number="7.2" id="ess-count-is-a-walk-through-the-booklet">
 <span class="header-section-number">7.2</span> ESS-Count is a walk through the booklet<a class="anchor" aria-label="anchor" href="#ess-count-is-a-walk-through-the-booklet"></a>
 </h3>
@@ -559,7 +559,7 @@ W_k(b_{(p+1)}) - W_k(b_{(p)}) = \frac{(p - n_{&lt;k}) \,\big(b_{(p+1)} - b_{(p)}
 </tr>
 </tbody>
 </table>
-<p>ESS-Weight is the default in emss. Its cuts are stable: changing one item’s alignment changes <span class="math inline">\(n_{&lt;k}\)</span> by at most one, so it moves a cut by at most two pages. ESS-Count responds to <em>where</em> the misaligned items are, so it is the criterion to look at when the question is which items the panelists placed out of order. Reporting both is cheap, and large differences between them are worth a look at the item review.</p>
+<p>ESS-Weight is the default in <code>emss</code>. Its cuts are stable: changing one item’s alignment changes <span class="math inline">\(n_{&lt;k}\)</span> by at most one, so it moves a cut by at most two pages. ESS-Count responds to <em>where</em> the misaligned items are, so it is the criterion to look at when the question is which items the panelists placed out of order. Reporting both is cheap, and large differences between them are worth a look at the item review.</p>
 </section></section><section class="section level2" data-number="8"><h2 data-number="8" id="from-cut-scores-to-the-other-results">
 <span class="header-section-number">8</span> From cut scores to the other results<a class="anchor" aria-label="anchor" href="#from-cut-scores-to-the-other-results"></a>
 </h2>
@@ -633,7 +633,7 @@ b_i - (\hat c_{a_i + 1} - 1) &amp; a_i &lt; o_i \quad\text{(located above its al
 <li>the item review labels an inconsistent item <em>Essentially Consistent</em> when <span class="math inline">\(0 &lt; \lvert d_i \rvert \le \mathrm{EC}\)</span> and <em>Inconsistent</em> when <span class="math inline">\(\lvert d_i \rvert &gt; \mathrm{EC}\)</span>;</li>
 <li>the EC-adjusted crosstab (type <code>"ec"</code>) treats items with <span class="math inline">\(\lvert d_i \rvert &lt; \mathrm{EC}\)</span> as agreeing, setting their aligned level to their empirical level.</li>
 </ul>
-<p>An item exactly at the margin counts as essentially consistent in the review but not in the crosstab. EC never changes the cut scores. With EC = 10 in the example, I03 and I05 are within the margin and I06 is not:</p>
+<p>An item exactly at the margin counts as essentially consistent in the review but not in the crosstab. EC never changes the cut scores. With <code>EC = 10</code> in the example, <code>I03</code> and <code>I05</code> are within the margin and <code>I06</code> is not:</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_ec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/emstans.html">emstans</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="../reference/ess_data.html">ess_data</a></span><span class="op">(</span><span class="va">ratings</span>, <span class="va">items</span>, levels <span class="op">=</span> <span class="va">labels</span>, ec <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, location <span class="op">=</span> <span class="st">"RP67"</span><span class="op">)</span></span>
@@ -650,7 +650,7 @@ b_i - (\hat c_{a_i + 1} - 1) &amp; a_i &lt; o_i \quad\text{(located above its al
 </section><section class="level2" data-number="8.5"><h3 data-number="8.5" id="panelist-median-and-average-cuts">
 <span class="header-section-number">8.5</span> Panelist, median and average cuts<a class="anchor" aria-label="anchor" href="#panelist-median-and-average-cuts"></a>
 </h3>
-<p>Every panelist’s own alignments go through Steps 2 and 3, giving panelist cuts <span class="math inline">\(\hat c_{jk}\)</span> with their pages. For each table and for all tables, emss reports two summaries of them. The <strong>median</strong> cut is the cut score at the middle page (the mean of the two middle panelists’ cut scores when <span class="math inline">\(J\)</span> is even), which equals the median of the panelist cut scores. The <strong>average</strong> cut is <span class="math inline">\(\bar c_k = \frac1J \sum_j \hat c_{jk}\)</span>, and its page is that of the panelist whose cut is closest to it.</p>
+<p>Every panelist’s own alignments go through Steps 2 and 3, giving panelist cuts <span class="math inline">\(\hat c_{jk}\)</span> with their pages. For each table and for all tables, <code>emss</code> reports two summaries of them. The <strong>median</strong> cut is the cut score at the middle page (the mean of the two middle panelists’ cut scores when <span class="math inline">\(J\)</span> is even), which equals the median of the panelist cut scores. The <strong>average</strong> cut is <span class="math inline">\(\bar c_k = \frac1J \sum_j \hat c_{jk}\)</span>, and its page is that of the panelist whose cut is closest to it.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pan</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"panelist"</span>, <span class="st">"cut_level"</span>, <span class="st">"page"</span>, <span class="st">"cut_score"</span>, <span class="st">"count"</span>, <span class="st">"weight"</span><span class="op">)</span><span class="op">]</span></span>
@@ -707,7 +707,7 @@ b_i - (\hat c_{a_i + 1} - 1) &amp; a_i &lt; o_i \quad\text{(located above its al
 </section><section class="section level2" data-number="10"><h2 data-number="10" id="how-emss-computes-the-profiles">
 <span class="header-section-number">10</span> How emss computes the profiles<a class="anchor" aria-label="anchor" href="#how-emss-computes-the-profiles"></a>
 </h2>
-<p>Evaluating the definitions directly costs <span class="math inline">\(O(n^2)\)</span> per level: <span class="math inline">\(n\)</span> candidates, each checked against <span class="math inline">\(n\)</span> items. emss sorts the upper and lower locations once and keeps their cumulative sums <span class="math inline">\(S_U\)</span> and <span class="math inline">\(S_L\)</span>. For a candidate <span class="math inline">\(c\)</span>, a binary search gives <span class="math inline">\(u = \#\{U: b &lt; c\}\)</span> and <span class="math inline">\(\lambda = \#\{L: b &lt; c\}\)</span>, and then</p>
+<p>Evaluating the definitions directly costs <span class="math inline">\(O(n^2)\)</span> per level: <span class="math inline">\(n\)</span> candidates, each checked against <span class="math inline">\(n\)</span> items. <code>emss</code> sorts the upper and lower locations once and keeps their cumulative sums <span class="math inline">\(S_U\)</span> and <span class="math inline">\(S_L\)</span>. For a candidate <span class="math inline">\(c\)</span>, a binary search gives <span class="math inline">\(u = \#\{U: b &lt; c\}\)</span> and <span class="math inline">\(\lambda = \#\{L: b &lt; c\}\)</span>, and then</p>
 <p><span class="math display">\[
 C_k(c) = u + (n_L - \lambda),
 \qquad

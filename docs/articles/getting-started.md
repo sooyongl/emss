@@ -1,10 +1,11 @@
 # Getting started with emss
 
-emss estimates cut scores with **embedded standard setting** (ESS; Lewis
-& Cook, 2020). Panelists align each item to the performance level whose
-descriptor it matches. emss then places each cut score where the items’
-locations on the reporting scale agree best with those alignments. This
-article covers the basic workflow. [How embedded standard setting
+`emss` estimates cut scores with **embedded standard setting** (ESS;
+Lewis & Cook, 2020). Panelists align each item to the performance level
+whose descriptor it matches. `emss` then places each cut score where the
+items’ locations on the reporting scale agree best with those
+alignments. This article covers the basic workflow. [How embedded
+standard setting
 works](https://sooyongl.github.io/emss/articles/ess-method.md) explains
 what is computed and why, with a worked example and the underlying
 mathematics.
@@ -20,7 +21,7 @@ remotes::install_github("sooyongl/emss")
 library(emss)
 ```
 
-## What emss needs
+## What `emss` needs
 
 | Input | Required | One row per | Main columns |
 |:---|:---|:---|:---|
@@ -29,9 +30,14 @@ library(emss)
 | Setup | optional | grade | `Level Options` (level labels, lowest to highest), `SD`, `EC` |
 | Examinee scores | optional | grade × score | grade, `Score`, `Freq` (long format), for impact data |
 
+The example of data structure can be found below in a simulated study
+section.
+
 The location is each item’s position on the reporting scale, typically a
-response-probability location such as RP67. The item table may hold
-several location columns. The `location` argument of
+response-probability location such as RP67 (for more details, see [Item
+Location](https://sooyongl.github.io/emss/articles/item-locations.md)).
+The item table may hold several location columns. The `location`
+argument of
 [`emstans()`](https://sooyongl.github.io/emss/reference/emstans.md)
 picks one.
 
@@ -50,24 +56,59 @@ sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel
 names(sim)
 #> [1] "setup"             "panelist"          "rating"            "item_data"        
 #> [5] "examineedata_data"
-head(sim$rating[, c("GCA", "Round", "Table", "Panelist", "Item_ID", "ALD")], 3)
-#> # A tibble: 3 × 6
-#>   GCA   Round Table Panelist Item_ID ALD   
-#>   <chr> <dbl> <chr> <chr>    <chr>   <chr> 
-#> 1 M1        1 T1    M1.T1.1  M1_1    Level1
-#> 2 M1        1 T1    M1.T1.1  M1_2    Level1
-#> 3 M1        1 T1    M1.T1.1  M1_3    Level2
-head(sim$item_data, 3)
+head(sim$setup, 3)
 #> # A tibble: 3 × 7
+#>   GCA   `Content Area` `Grade Group` Number of Tables per Ro…¹ `Level Options`    SD    EC
+#>   <chr> <chr>          <chr>         <chr>                     <chr>           <dbl> <dbl>
+#> 1 M1    Math           1             2                         Level1, Level2…     1     0
+#> 2 M2    Math           2             2                         Level1, Level2…     1     0
+#> 3 M3    Math           3             2                         Level1, Level2…     1     0
+#> # ℹ abbreviated name: ¹​`Number of Tables per Room`
+head(sim$panelist, 4)
+#> # A tibble: 4 × 3
+#>   GCA   Panelist Table
+#>   <chr> <chr>    <chr>
+#> 1 M1    M1.T1.1  T1   
+#> 2 M1    M1.T1.2  T1   
+#> 3 M1    M1.T1.3  T1   
+#> 4 M1    M1.T1.4  T1
+head(sim$rating, 5)
+#> # A tibble: 5 × 8
+#>   GCA   Subject Grade Round Table Panelist Item_ID ALD   
+#>   <chr> <chr>   <chr> <dbl> <chr> <chr>    <chr>   <chr> 
+#> 1 M1    Math    1         1 T1    M1.T1.1  M1_1    Level1
+#> 2 M1    Math    1         1 T1    M1.T1.1  M1_2    Level1
+#> 3 M1    Math    1         1 T1    M1.T1.1  M1_3    Level2
+#> 4 M1    Math    1         1 T1    M1.T1.1  M1_4    Level2
+#> 5 M1    Math    1         1 T1    M1.T1.1  M1_5    Level2
+head(sim$item_data, 5)
+#> # A tibble: 5 × 7
 #>   GCA   Domain   Item_ID Total_points Point Order_of_Difficulty Loc_RP50
 #>   <chr> <chr>    <chr>          <dbl> <dbl>               <int>    <dbl>
 #> 1 M1    Number   M1_1               1     1                   1     302.
 #> 2 M1    Geometry M1_2               1     1                   2     313.
 #> 3 M1    Algebra  M1_3               1     1                   3     314.
+#> 4 M1    Geometry M1_4               1     1                   4     317.
+#> 5 M1    Number   M1_5               1     1                   5     319.
+head(sim$examineedata_data, 10)
+#> # A tibble: 10 × 3
+#>    score  freq Grade
+#>    <int> <int> <chr>
+#>  1   286     4 M1   
+#>  2   287     4 M1   
+#>  3   288     6 M1   
+#>  4   289     6 M1   
+#>  5   290     7 M1   
+#>  6   291     6 M1   
+#>  7   292     3 M1   
+#>  8   293     6 M1   
+#>  9   294     1 M1   
+#> 10   295     4 M1
 ```
 
-`sdinp` and `ecinp` must be named here: the unnamed values that follow
-`n` (300 and 500) are the range of the item locations.
+`sdinp` (SD in the `sim$setup`) and `ecinp` (EC in the `sim$setup`) must
+be named here: the unnamed values that follow `n` (300 and 500) are the
+range of the item locations.
 
 ## Estimating cut scores
 
@@ -85,7 +126,7 @@ res
 #> Use extract() for tables, report() for the full report.
 ```
 
-Each grade is analysed separately. For each one, emss estimates a cut
+Each grade is analysed separately. For each one, `emss` estimates a cut
 score for every panelist and for the **modal** alignment across
 panelists, per table and for all tables together. The printed cut scores
 are the modal cuts for all tables. Each cut is named by the level it
@@ -299,6 +340,9 @@ table, plot and report uses the labels, in level order.
 - [Bootstrapping cut
   scores](https://sooyongl.github.io/emss/articles/bootstrapping.md):
   the sampling variability of cut scores.
+- [Computation of Item
+  Location](https://sooyongl.github.io/emss/articles/item-locations.md):
+  Computing item locations according to IRT models.
 
 ## References
 

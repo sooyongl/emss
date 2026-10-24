@@ -75,7 +75,7 @@
 
 
 
-    <p>emss estimates cut scores with <strong>embedded standard setting</strong> (ESS; Lewis &amp; Cook, 2020). Panelists align each item to the performance level whose descriptor it matches. emss then places each cut score where the items’ locations on the reporting scale agree best with those alignments. This article covers the basic workflow. <a href="ess-method.html">How embedded standard setting works</a> explains what is computed and why, with a worked example and the underlying mathematics.</p>
+    <p><code>emss</code> estimates cut scores with <strong>embedded standard setting</strong> (ESS; Lewis &amp; Cook, 2020). Panelists align each item to the performance level whose descriptor it matches. <code>emss</code> then places each cut score where the items’ locations on the reporting scale agree best with those alignments. This article covers the basic workflow. <a href="ess-method.html">How embedded standard setting works</a> explains what is computed and why, with a worked example and the underlying mathematics.</p>
 <section class="section level2"><h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="cell" data-layout-align="center">
@@ -87,7 +87,7 @@
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sooyongl.github.io/emss/">emss</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-</section><section class="section level2"><h2 id="what-emss-needs">What emss needs<a class="anchor" aria-label="anchor" href="#what-emss-needs"></a>
+</section><section class="section level2"><h2 id="what-emss-needs">What <code>emss</code> needs<a class="anchor" aria-label="anchor" href="#what-emss-needs"></a>
 </h2>
 <table class="table caption-top">
 <colgroup>
@@ -132,7 +132,8 @@
 </tr>
 </tbody>
 </table>
-<p>The location is each item’s position on the reporting scale, typically a response-probability location such as RP67. The item table may hold several location columns. The <code>location</code> argument of <code><a href="../reference/emstans.html">emstans()</a></code> picks one.</p>
+<p>The example of data structure can be found below in a simulated study section.</p>
+<p>The location is each item’s position on the reporting scale, typically a response-probability location such as RP67 (for more details, see <a href="item-locations.html">Item Location</a>). The item table may hold several location columns. The <code>location</code> argument of <code><a href="../reference/emstans.html">emstans()</a></code> picks one.</p>
 </section><section class="section level2"><h2 id="a-simulated-study">A simulated study<a class="anchor" aria-label="anchor" href="#a-simulated-study"></a>
 </h2>
 <p><code><a href="../reference/genFakeDataSet.html">genFakeDataSet()</a></code> simulates a complete study: here three grades, two tables of four panelists each, 40 items per grade, three performance levels, and three content domains.</p>
@@ -145,22 +146,56 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">sim</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "setup"             "panelist"          "rating"            "item_data"        </span></span>
 <span><span class="co">#&gt; [5] "examineedata_data"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">rating</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GCA"</span>, <span class="st">"Round"</span>, <span class="st">"Table"</span>, <span class="st">"Panelist"</span>, <span class="st">"Item_ID"</span>, <span class="st">"ALD"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span><span class="co">#&gt;   GCA   Round Table Panelist Item_ID ALD   </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; </span></span>
-<span><span class="co">#&gt; 1 M1        1 T1    M1.T1.1  M1_1    Level1</span></span>
-<span><span class="co">#&gt; 2 M1        1 T1    M1.T1.1  M1_2    Level1</span></span>
-<span><span class="co">#&gt; 3 M1        1 T1    M1.T1.1  M1_3    Level2</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">item_data</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">setup</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 3 × 7</span></span>
+<span><span class="co">#&gt;   GCA   `Content Area` `Grade Group` Number of Tables per Ro…¹ `Level Options`    SD    EC</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;                     &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 M1    Math           1             2                         Level1, Level2…     1     0</span></span>
+<span><span class="co">#&gt; 2 M2    Math           2             2                         Level1, Level2…     1     0</span></span>
+<span><span class="co">#&gt; 3 M3    Math           3             2                         Level1, Level2…     1     0</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​`Number of Tables per Room`</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">panelist</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 4 × 3</span></span>
+<span><span class="co">#&gt;   GCA   Panelist Table</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;</span></span>
+<span><span class="co">#&gt; 1 M1    M1.T1.1  T1   </span></span>
+<span><span class="co">#&gt; 2 M1    M1.T1.2  T1   </span></span>
+<span><span class="co">#&gt; 3 M1    M1.T1.3  T1   </span></span>
+<span><span class="co">#&gt; 4 M1    M1.T1.4  T1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">rating</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 8</span></span>
+<span><span class="co">#&gt;   GCA   Subject Grade Round Table Panelist Item_ID ALD   </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; </span></span>
+<span><span class="co">#&gt; 1 M1    Math    1         1 T1    M1.T1.1  M1_1    Level1</span></span>
+<span><span class="co">#&gt; 2 M1    Math    1         1 T1    M1.T1.1  M1_2    Level1</span></span>
+<span><span class="co">#&gt; 3 M1    Math    1         1 T1    M1.T1.1  M1_3    Level2</span></span>
+<span><span class="co">#&gt; 4 M1    Math    1         1 T1    M1.T1.1  M1_4    Level2</span></span>
+<span><span class="co">#&gt; 5 M1    Math    1         1 T1    M1.T1.1  M1_5    Level2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">item_data</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 5 × 7</span></span>
 <span><span class="co">#&gt;   GCA   Domain   Item_ID Total_points Point Order_of_Difficulty Loc_RP50</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;dbl&gt;               &lt;int&gt;    &lt;dbl&gt;</span></span>
 <span><span class="co">#&gt; 1 M1    Number   M1_1               1     1                   1     302.</span></span>
 <span><span class="co">#&gt; 2 M1    Geometry M1_2               1     1                   2     313.</span></span>
-<span><span class="co">#&gt; 3 M1    Algebra  M1_3               1     1                   3     314.</span></span></code></pre></div>
+<span><span class="co">#&gt; 3 M1    Algebra  M1_3               1     1                   3     314.</span></span>
+<span><span class="co">#&gt; 4 M1    Geometry M1_4               1     1                   4     317.</span></span>
+<span><span class="co">#&gt; 5 M1    Number   M1_5               1     1                   5     319.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">examineedata_data</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 10 × 3</span></span>
+<span><span class="co">#&gt;    score  freq Grade</span></span>
+<span><span class="co">#&gt;    &lt;int&gt; &lt;int&gt; &lt;chr&gt;</span></span>
+<span><span class="co">#&gt;  1   286     4 M1   </span></span>
+<span><span class="co">#&gt;  2   287     4 M1   </span></span>
+<span><span class="co">#&gt;  3   288     6 M1   </span></span>
+<span><span class="co">#&gt;  4   289     6 M1   </span></span>
+<span><span class="co">#&gt;  5   290     7 M1   </span></span>
+<span><span class="co">#&gt;  6   291     6 M1   </span></span>
+<span><span class="co">#&gt;  7   292     3 M1   </span></span>
+<span><span class="co">#&gt;  8   293     6 M1   </span></span>
+<span><span class="co">#&gt;  9   294     1 M1   </span></span>
+<span><span class="co">#&gt; 10   295     4 M1</span></span></code></pre></div>
 </div>
-<p><code>sdinp</code> and <code>ecinp</code> must be named here: the unnamed values that follow <code>n</code> (300 and 500) are the range of the item locations.</p>
+<p><code>sdinp</code> (SD in the <code>sim$setup</code>) and <code>ecinp</code> (EC in the <code>sim$setup</code>) must be named here: the unnamed values that follow <code>n</code> (300 and 500) are the range of the item locations.</p>
 </section><section class="section level2"><h2 id="estimating-cut-scores">Estimating cut scores<a class="anchor" aria-label="anchor" href="#estimating-cut-scores"></a>
 </h2>
 <div class="cell" data-layout-align="center">
@@ -177,7 +212,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Use extract() for tables, report() for the full report.</span></span></code></pre></div>
 </div>
-<p>Each grade is analysed separately. For each one, emss estimates a cut score for every panelist and for the <strong>modal</strong> alignment across panelists, per table and for all tables together. The printed cut scores are the modal cuts for all tables. Each cut is named by the level it opens: <code>Level2</code> is the lowest score in Level 2.</p>
+<p>Each grade is analysed separately. For each one, <code>emss</code> estimates a cut score for every panelist and for the <strong>modal</strong> alignment across panelists, per table and for all tables together. The printed cut scores are the modal cuts for all tables. Each cut is named by the level it opens: <code>Level2</code> is the lowest score in Level 2.</p>
 <p>The main options are:</p>
 <table class="table caption-top">
 <colgroup>
@@ -392,6 +427,8 @@
 <a href="manual-cut-scores.html">Setting cut scores manually</a>: evaluate cut scores you set yourself.</li>
 <li>
 <a href="bootstrapping.html">Bootstrapping cut scores</a>: the sampling variability of cut scores.</li>
+<li>
+<a href="item-locations.html">Computation of Item Location</a>: Computing item locations according to IRT models.</li>
 </ul></section><section class="section level2"><h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <p>Lewis, D., &amp; Cook, R. (2020). Embedded standard setting: Aligning standard-setting methodology with contemporary assessment design principles. <em>Educational Measurement: Issues and Practice, 39</em>(1), 8–21. https://doi.org/10.1111/emip.12318</p>

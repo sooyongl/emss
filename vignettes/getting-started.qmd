@@ -22,9 +22,9 @@ knitr:
 options(width = 90, digits = 4)
 ```
 
-emss estimates cut scores with **embedded standard setting** (ESS; Lewis &
+`emss` estimates cut scores with **embedded standard setting** (ESS; Lewis &
 Cook, 2020). Panelists align each item to the performance level whose
-descriptor it matches. emss then places each cut score where the items'
+descriptor it matches. `emss` then places each cut score where the items'
 locations on the reporting scale agree best with those alignments. This
 article covers the basic workflow. [How embedded standard setting
 works](ess-method.html) explains what is computed and why, with a worked
@@ -42,7 +42,7 @@ remotes::install_github("sooyongl/emss")
 library(emss)
 ```
 
-# What emss needs
+# What `emss` needs
 
 | Input | Required | One row per | Main columns |
 |:--|:--|:--|:--|
@@ -51,8 +51,10 @@ library(emss)
 | Setup | optional | grade | `Level Options` (level labels, lowest to highest), `SD`, `EC` |
 | Examinee scores | optional | grade × score | grade, `Score`, `Freq` (long format), for impact data |
 
+The example of data structure can be found below in a simulated study section.
+
 The location is each item's position on the reporting scale, typically a
-response-probability location such as RP67. The item table may hold several
+response-probability location such as RP67 (for more details, see [Item Location](item-locations.html)). The item table may hold several
 location columns. The `location` argument of `emstans()` picks one.
 
 # A simulated study
@@ -68,11 +70,14 @@ sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel
                       sdinp = 1, ecinp = 0, n = 40, 300, 500,
                       domains = c("Number", "Algebra", "Geometry"))
 names(sim)
-head(sim$rating[, c("GCA", "Round", "Table", "Panelist", "Item_ID", "ALD")], 3)
-head(sim$item_data, 3)
+head(sim$setup, 3)
+head(sim$panelist, 4)
+head(sim$rating, 5)
+head(sim$item_data, 5)
+head(sim$examineedata_data, 10)
 ```
 
-`sdinp` and `ecinp` must be named here: the unnamed values that follow `n`
+`sdinp` (SD in the `sim$setup`) and `ecinp` (EC in the `sim$setup`) must be named here: the unnamed values that follow `n`
 (300 and 500) are the range of the item locations.
 
 # Estimating cut scores
@@ -83,7 +88,7 @@ res <- emstans(data = sim, location = "Loc_RP50")
 res
 ```
 
-Each grade is analysed separately. For each one, emss estimates a cut score
+Each grade is analysed separately. For each one, `emss` estimates a cut score
 for every panelist and for the **modal** alignment across panelists, per
 table and for all tables together. The printed cut scores are the modal
 cuts for all tables. Each cut is named by the level it opens: `Level2` is
@@ -221,7 +226,8 @@ plot and report uses the labels, in level order.
   you set yourself.
 * [Bootstrapping cut scores](bootstrapping.html): the sampling variability of
   cut scores.
-
+* [Computation of Item Location](item-locations.html): Computing item locations according to IRT models.
+  
 # References
 
 Lewis, D., & Cook, R. (2020). Embedded standard setting: Aligning

@@ -109,8 +109,7 @@ locations, so every cut score it returns is the location of some item, a
 
 Two consequences follow.
 
-1. **The order of the locations decides which items fall on which side of a
-   cut.** ESS-Count depends on nothing else.
+1. **The order of the locations decides which items fall on which side of a cut.** ESS-Count depends on nothing else.
 2. **The values of the locations decide the cut scores**, and through them the
    share of examinees in each level.
 

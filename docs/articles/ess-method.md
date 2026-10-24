@@ -1,15 +1,17 @@
 # How embedded standard setting works
 
-This article explains what emss computes and why. It works through a
-12-item example by hand, checks every hand calculation against emss, and
-then states the mathematical properties of the two criteria, ESS-Count
-and ESS-Weight, with short proofs. For day-to-day use of the package,
-start with [Getting
+This article explains what `emss` computes and why. It works through a
+12-item example by hand, checks every hand calculation against `emss`,
+and then states the mathematical properties of the two criteria,
+ESS-Count and ESS-Weight, with short proofs. For day-to-day use of the
+package, start with [Getting
 started](https://sooyongl.github.io/emss/articles/getting-started.md).
 [Manual cut
-scores](https://sooyongl.github.io/emss/articles/manual-cut-scores.md)
-and the
-[bootstrap](https://sooyongl.github.io/emss/articles/bootstrapping.md)
+scores](https://sooyongl.github.io/emss/articles/manual-cut-scores.md),
+the
+[bootstrap](https://sooyongl.github.io/emss/articles/bootstrapping.md),
+and [Item
+Location](https://sooyongl.github.io/emss/articles/item-locations.md)
 have their own articles.
 
 ## 1 The idea
@@ -38,9 +40,10 @@ An item on the wrong side of a cut is **inconsistent** with that cut.
 ESS places every cut where inconsistency is smallest. The two versions
 differ only in how they measure it:
 
-- **ESS-Count** counts the inconsistent items.
+- **ESS-Count** counts the inconsistent items (i.e., where matters, not
+  how far).
 - **ESS-Weight** adds up how far the inconsistent items are from the cut
-  on the location scale.
+  on the location scale (i.e., how far matters, not where).
 
 Lewis, Lee and Choi (2021) compared the two algorithms.
 
@@ -77,7 +80,7 @@ Proficient and Advanced.
 ``` r
 items <- data.frame(
   Grade   = "G5",
-  Item_ID = sprintf("I%02d", 1:12),
+  Item_ID = c(paste0("I0", 1:9), paste0("I", 10:12)),
   RP67    = c(212, 224, 231, 239, 246, 252, 258, 265, 271, 280, 288, 297)
 )
 labels <- c("Basic", "Proficient", "Advanced")
@@ -155,7 +158,7 @@ sorted order wins. Modal levels are computed for each table and for all
 tables together. The all-tables modal result is the one used for
 agreement, the item review and impact.
 
-In the example, item I03 got three different levels, one from each
+In the example, item `I03` got three different levels, one from each
 panelist:
 
 ``` r
@@ -170,9 +173,9 @@ wide[3, ]
 #> 3     I03  231  2  1  3     2
 ```
 
-P1 has the highest correlation, so I03 takes P1’s level, Proficient (2).
-The correlations are the same ones emss reports with each panelist’s cut
-scores:
+P1 has the highest correlation, so `I03` takes P1’s level, Proficient
+(2). The correlations are the same ones `emss` reports with each
+panelist’s cut scores:
 
 ``` r
 pan <- extract(res_w, "individual")$panelist
@@ -225,16 +228,16 @@ cut.
 Figure 1: Two candidate Proficient cuts. Filled points are inconsistent
 items; segments show their distances.
 
-At \\c = 231\\, two Basic items, I05 and I06, are at or above the cut,
-at distances 15 and 21: \\C_2 = 2\\ and \\W_2 = 36\\. At \\c = 239\\,
-the same two items are closer (7 and 13), but the Proficient item I03 at
-231 is now below the cut (distance 8): \\C_2 = 3\\ and \\W_2 = 28\\.
-Count prefers 231 and Weight prefers 239.
+At \\c = 231\\, two Basic items, `I05` and `I06`, are at or above the
+cut, at distances 15 and 21: \\C_2 = 2\\ and \\W_2 = 36\\. At \\c =
+239\\, the same two items are closer (7 and 13), but the Proficient item
+I03 at 231 is now below the cut (distance 8): \\C_2 = 3\\ and \\W_2 =
+28\\. Count prefers 231 and Weight prefers 239.
 
 ## 6 Step 3: the profile and the cut
 
 The **inconsistency profile** evaluates \\C_k\\ and \\W_k\\ at every
-candidate. emss uses the item locations themselves as candidates (the
+candidate. `emss` uses the item locations themselves as candidates (the
 next section shows that nothing is lost). A direct implementation of the
 definitions takes a few lines:
 
@@ -264,7 +267,7 @@ prof
 #> 12   12  297       3  7 247  3  52
 ```
 
-emss returns the same profile for the modal alignment:
+`emss` returns the same profile for the modal alignment:
 
 ``` r
 emss_prof <- extract(res_w, "profile")[["G5-All"]]
@@ -351,8 +354,8 @@ A linear function on an interval is smallest at one of its ends, so the
 minimum of \\W_k\\ over all \\c \le b\_{(n)}\\ is reached at an item
 location, and the same holds for \\C_k\\. The only cuts not tried are
 those above the hardest item, which would leave level \\k\\ with no
-items. emss therefore always places a cut on an item, and the cut item’s
-page is reported with it.
+items. `emss` therefore always places a cut on an item, and the cut
+item’s page is reported with it.
 
 ### 7.2 ESS-Count is a walk through the booklet
 
@@ -543,7 +546,7 @@ sum(abs(mi$aligned - mi$operational))
 | Ties | frequent (integer values), broken by the weight | at most two neighbouring items, broken by the count |
 | Location scale | order only, except weight tie-breaks | order only |
 
-ESS-Weight is the default in emss. Its cuts are stable: changing one
+ESS-Weight is the default in `emss`. Its cuts are stable: changing one
 item’s alignment changes \\n\_{\<k}\\ by at most one, so it moves a cut
 by at most two pages. ESS-Count responds to *where* the misaligned items
 are, so it is the criterion to look at when the question is which items
@@ -639,8 +642,9 @@ EC column, or `ess_data(ec = )`):
   their empirical level.
 
 An item exactly at the margin counts as essentially consistent in the
-review but not in the crosstab. EC never changes the cut scores. With EC
-= 10 in the example, I03 and I05 are within the margin and I06 is not:
+review but not in the crosstab. EC never changes the cut scores. With
+`EC = 10` in the example, `I03` and `I05` are within the margin and
+`I06` is not:
 
 ``` r
 res_ec <- emstans(data = ess_data(ratings, items, levels = labels, ec = 10), location = "RP67")
@@ -659,7 +663,7 @@ extract(res_ec, "detailed")$agreement
 
 Every panelist’s own alignments go through Steps 2 and 3, giving
 panelist cuts \\\hat c\_{jk}\\ with their pages. For each table and for
-all tables, emss reports two summaries of them. The **median** cut is
+all tables, `emss` reports two summaries of them. The **median** cut is
 the cut score at the middle page (the mean of the two middle panelists’
 cut scores when \\J\\ is even), which equals the median of the panelist
 cut scores. The **average** cut is \\\bar c_k = \frac1J \sum_j \hat
@@ -737,7 +741,7 @@ apply to them.
 ## 10 How emss computes the profiles
 
 Evaluating the definitions directly costs \\O(n^2)\\ per level: \\n\\
-candidates, each checked against \\n\\ items. emss sorts the upper and
+candidates, each checked against \\n\\ items. `emss` sorts the upper and
 lower locations once and keeps their cumulative sums \\S_U\\ and
 \\S_L\\. For a candidate \\c\\, a binary search gives \\u = \\\\U: b \<
 c\\\\ and \\\lambda = \\\\L: b \< c\\\\, and then
