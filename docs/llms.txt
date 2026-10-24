@@ -154,6 +154,8 @@ extract(res)
   Run Embedded Standard Setting Analysis
 - [`ess_data()`](https://sooyongl.github.io/emss/reference/ess_data.md)
   : Prepare Embedded Standard Setting input data
+- [`ess_locations()`](https://sooyongl.github.io/emss/reference/ess_locations.md)
+  : Item locations at a response probability
 - [`ess_read_excel()`](https://sooyongl.github.io/emss/reference/ess_read_excel.md)
   : Read an emss Excel workbook
 - [`extract()`](https://sooyongl.github.io/emss/reference/extract.ESS.md)
@@ -199,3 +201,10 @@ extract(res)
   How much would the cut scores change with a different set of items?
   The item bootstrap, how to read it, and the earlier jittered-grid
   version.
+
+- [Item
+  locations](https://sooyongl.github.io/emss/articles/item-locations.md):
+
+  What an item location is, why it drives ESS cut scores, how it is
+  computed, and what to consider under each IRT model. Covers
+  ess_locations().

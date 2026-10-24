@@ -5,8 +5,9 @@ articles:
   bootstrapping: bootstrapping.html
   ess-method: ess-method.html
   getting-started: getting-started.html
+  item-locations: item-locations.html
   manual-cut-scores: manual-cut-scores.html
-last_built: 2026-10-22T20:05Z
+last_built: 2026-10-24T02:00Z
 urls:
   reference: https://sooyongl.github.io/emss/reference
   article: https://sooyongl.github.io/emss/articles

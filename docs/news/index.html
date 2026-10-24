@@ -30,6 +30,7 @@
     <li><a class="dropdown-item" href="../articles/ess-method.html">How embedded standard setting works</a></li>
     <li><a class="dropdown-item" href="../articles/manual-cut-scores.html">Setting cut scores manually</a></li>
     <li><a class="dropdown-item" href="../articles/bootstrapping.html">Bootstrapping cut scores</a></li>
+    <li><a class="dropdown-item" href="../articles/item-locations.html">Item locations</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"></ul></div>
@@ -46,9 +47,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="emss-010">emss 0.1.0<a class="anchor" aria-label="anchor" href="#emss-010"></a></h2>
-<ul><li><p><code>emss</code> package is published and up and running to conduct Embeded Standard Setting!</p></li>
-<li><p><code>emss</code> can do embeded standarding setting using counts or weights.</p></li>
-<li><p>have some features for figures and tables for the standard setting results.</p></li>
+<ul><li><p>First release. <code>emss</code> implements Embedded Standard Setting (ESS): it estimates cut scores from panelists’ item–level alignments and item locations.</p></li>
+<li><p>Cut scores can be estimated with either criterion: ESS-Count (number of inconsistent items) or ESS-Weight (summed distance of inconsistent items).</p></li>
+<li><p>Results are given for each panelist and aggregated across panelists (modal, median and mean), by grade, round and, optionally, by domain.</p></li>
+<li><p>Diagnostics include panelist agreement, item review (consistent, essentially consistent and inconsistent items) and impact data from examinee scores.</p></li>
+<li><p><code><a href="https://rdrr.io/r/stats/update.html" class="external-link">update()</a></code> evaluates manually set cut scores, and <code><a href="../reference/bootstrapping.ESS.html">bootstrapping()</a></code> gives standard errors for the estimated cuts.</p></li>
+<li><p>Input can come from an Excel workbook or from data frames and CSV files via <code><a href="../reference/ess_data.html">ess_data()</a></code>. <code><a href="../reference/report.ESS.html">report()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> produce tables and figures of the results.</p></li>
 </ul></div>
   </main></div>
 

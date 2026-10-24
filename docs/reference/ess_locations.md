@@ -1,0 +1,192 @@
+# Item locations at a response probability
+
+Converts IRT item parameters into ESS item locations. The location of a
+dichotomous item is the ability at which an examinee answers it
+correctly with probability \`rp\`. A polytomous item with maximum score
+K gives K locations ("pages"), one for each score point k = 1, ..., K:
+the ability at which an examinee earns score k or higher with
+probability \`rp\`.
+
+## Usage
+
+``` r
+ess_locations(
+  pars,
+  model = NULL,
+  rp = 0.67,
+  D = 1,
+  item = 1,
+  a = "a",
+  b = "b",
+  c = "c",
+  guessing = c("none", "rescale", "huynh"),
+  slope = 1,
+  intercept = 0,
+  sep = "_"
+)
+```
+
+## Arguments
+
+- pars:
+
+  A data frame of item parameters, one row per item.
+
+- model:
+
+  The IRT model: \`"rasch"\`, \`"2pl"\`, \`"3pl"\` (dichotomous) or
+  \`"pcm"\`, \`"gpcm"\`, \`"grm"\` (polytomous). Either one value for
+  every item or one value per row of \`pars\`, which allows mixed-format
+  tests. If \`NULL\`, \`pars\` must have a column named \`model\`.
+
+- rp:
+
+  Response probability, between 0 and 1. The default 0.67 is the usual
+  RP67; 0.5 returns the RP50 location (\`b\` for Rasch and 2PL items).
+
+- D:
+
+  Scaling constant: 1 for the logistic metric (mirt, flexMIRT,
+  Winsteps), 1.702 (or 1.7) for the normal metric (PARSCALE, BILOG-MG
+  and many operational programs).
+
+- item:
+
+  Column of \`pars\` holding the item ID, by name or position.
+
+- a:
+
+  Column holding the discrimination (slope). Not used for \`"rasch"\`
+  and \`"pcm"\` items, where it is fixed at 1.
+
+- b:
+
+  Threshold columns. Either a prefix (the default \`"b"\` matches
+  columns \`b\`, \`b1\`, \`b2\`, ...; a column \`b\` counts as \`b1\`)
+  or a character vector naming the threshold columns in order.
+  Dichotomous items use one threshold; polytomous items use thresholds 1
+  to K and \`NA\` after that, so items with different maximum scores can
+  share one table. See Details for what the thresholds mean under each
+  model.
+
+- c:
+
+  Column holding the lower asymptote (pseudo-guessing) of \`"3pl"\`
+  items.
+
+- guessing:
+
+  How \`rp\` is applied to \`"3pl"\` items: \* \`"none"\` (default):
+  P(correct) = \`rp\`. Requires \`rp \> c\`. \* \`"rescale"\`:
+  P(correct) = c + (1 - c) \`rp\`, i.e. \`rp\` of the way from the
+  guessing floor to 1. \* \`"huynh"\`: P(correct) = (2 + c) / 3 (Huynh,
+  1998, 2006). \`rp\` is not used for these items; with c = 0 this is
+  2/3.
+
+  Other models are not affected.
+
+- slope, intercept:
+
+  Linear transformation to a reporting scale: \`location = intercept +
+  slope \* theta\`. \`slope\` must be positive so that item order is
+  kept.
+
+- sep:
+
+  Separator between item ID and score point in the \`Item_ID\` of a
+  polytomous score point (\`"Q12_2"\`).
+
+## Value
+
+A data frame with one row per location: \`Item_ID\` (the item ID for
+dichotomous items, item ID, \`sep\` and score point for polytomous
+items), \`item\`, \`score\`, \`max_score\`, \`model\`, \`p\` (the
+probability the location was solved for), \`theta\` and \`location\`
+(\`theta\` on the reporting scale). Rows keep the order of \`pars\`;
+they are not sorted by location.
+
+## Details
+
+\*\*Dichotomous items.\*\* With P(theta) = c + (1 - c) / (1 + exp(-D a
+(theta - b))), the location is \`theta = b + log((p - c) / (1 - p)) / (D
+a)\`, where p is the target probability (\`rp\`, or as set by
+\`guessing\`). Rasch items have a = 1 and c = 0; 2PL items have c = 0.
+Under Rasch, changing \`rp\` moves every item by the same amount, so
+item order does not change. Under 2PL and 3PL the shift is \`1 / (D a)\`
+times larger for less discriminating items, so \`rp\` can change item
+order.
+
+\*\*Polytomous items.\*\* The location of score point k solves P(X \>= k
+\| theta) = \`rp\`. These locations are always increasing in k within an
+item. \* \`"grm"\`: the thresholds are the category boundaries \`b_k\`
+of P(X \>= k) = 1 / (1 + exp(-D a (theta - b_k))), so \`theta_k = b_k +
+log(rp / (1 - rp)) / (D a)\`. Boundaries must increase. \* \`"pcm"\`,
+\`"gpcm"\`: the thresholds are step difficulties \`delta_v\` of P(X = k)
+proportional to exp(sum over v \<= k of D a (theta - delta_v)). They may
+be disordered. The location is found numerically.
+
+Parameterizations differ between programs; convert before calling. For
+mirt, \`"graded"\` items give \`b_k = -d_k / a\`, and \`"gpcm"\` items
+(with the default scoring 0, 1, ..., K) give \`delta_k = -(d_k -
+d\_(k-1)) / a\`. Programs that report an item location b with step
+deviations d_v use \`delta_v = b - d_v\` (PARSCALE) or \`b + d_v\`,
+depending on sign convention.
+
+## References
+
+Huynh, H. (1998). On score locations of binary and partial credit items
+and their applications to item mapping and criterion-referenced
+interpretation. \*Journal of Educational and Behavioral Statistics,
+23\*(1), 35-56.
+
+Huynh, H. (2006). A clarification on the response probability criterion
+RP67 for standard settings based on bookmark and item mapping.
+\*Educational Measurement: Issues and Practice, 25\*(2), 19-20.
+
+## Examples
+
+``` r
+# Mixed-format test: 3PL multiple-choice items and a GPCM constructed-
+# response item scored 0-3
+pars <- data.frame(
+  Item_ID = c("MC1", "MC2", "CR1"),
+  model   = c("3pl", "3pl", "gpcm"),
+  a  = c(1.2, 0.7, 0.9),
+  b1 = c(-0.5, 0.3, -1.0),
+  b2 = c(NA, NA, 0.2),
+  b3 = c(NA, NA, 1.1),
+  c  = c(0.20, 0.25, NA)
+)
+ess_locations(pars, D = 1.702)
+#>   Item_ID item score max_score model    p      theta   location
+#> 1     MC1  MC1     1         1   3pl 0.67 -0.3268507 -0.3268507
+#> 2     MC2  MC2     1         1   3pl 0.67  0.5024191  0.5024191
+#> 3   CR1_1  CR1     1         3  gpcm 0.67 -0.6939925 -0.6939925
+#> 4   CR1_2  CR1     2         3  gpcm 0.67  0.5041366  0.5041366
+#> 5   CR1_3  CR1     3         3  gpcm 0.67  1.6324590  1.6324590
+
+# RP50 and Huynh's guessing-adjusted RP for the 3PL items
+ess_locations(pars, rp = 0.5, D = 1.702)
+#>   Item_ID item score max_score model   p      theta   location
+#> 1     MC1  MC1     1         1   3pl 0.5 -0.7501105 -0.7501105
+#> 2     MC2  MC2     1         1   3pl 0.5 -0.2817922 -0.2817922
+#> 3   CR1_1  CR1     1         3  gpcm 0.5 -1.0878028 -1.0878028
+#> 4   CR1_2  CR1     2         3  gpcm 0.5  0.1623984  0.1623984
+#> 5   CR1_3  CR1     3         3  gpcm 0.5  1.2267645  1.2267645
+ess_locations(pars, D = 1.702, guessing = "huynh")
+#>   Item_ID item score max_score model         p      theta   location
+#> 1     MC1  MC1     1         1   3pl 0.7333333 -0.1606212 -0.1606212
+#> 2     MC2  MC2     1         1   3pl 0.7500000  0.8817922  0.8817922
+#> 3   CR1_1  CR1     1         3  gpcm 0.6700000 -0.6939925 -0.6939925
+#> 4   CR1_2  CR1     2         3  gpcm 0.6700000  0.5041366  0.5041366
+#> 5   CR1_3  CR1     3         3  gpcm 0.6700000  1.6324590  1.6324590
+
+# Locations on a reporting scale (scale score = 500 + 50 * theta)
+ess_locations(pars, D = 1.702, slope = 50, intercept = 500)
+#>   Item_ID item score max_score model    p      theta location
+#> 1     MC1  MC1     1         1   3pl 0.67 -0.3268507 483.6575
+#> 2     MC2  MC2     1         1   3pl 0.67  0.5024191 525.1210
+#> 3   CR1_1  CR1     1         3  gpcm 0.67 -0.6939925 465.3004
+#> 4   CR1_2  CR1     2         3  gpcm 0.67  0.5041366 525.2068
+#> 5   CR1_3  CR1     3         3  gpcm 0.67  1.6324590 581.6230
+```

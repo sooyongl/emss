@@ -26,3 +26,10 @@
   How much would the cut scores change with a different set of items?
   The item bootstrap, how to read it, and the earlier jittered-grid
   version.
+
+- [Item
+  locations](https://sooyongl.github.io/emss/articles/item-locations.md):
+
+  What an item location is, why it drives ESS cut scores, how it is
+  computed, and what to consider under each IRT model. Covers
+  ess_locations().

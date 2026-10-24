@@ -8,6 +8,8 @@
   Run Embedded Standard Setting Analysis
 - [`ess_data()`](https://sooyongl.github.io/emss/reference/ess_data.md)
   : Prepare Embedded Standard Setting input data
+- [`ess_locations()`](https://sooyongl.github.io/emss/reference/ess_locations.md)
+  : Item locations at a response probability
 - [`ess_read_excel()`](https://sooyongl.github.io/emss/reference/ess_read_excel.md)
   : Read an emss Excel workbook
 - [`extract()`](https://sooyongl.github.io/emss/reference/extract.ESS.md)
