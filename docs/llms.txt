@@ -160,7 +160,7 @@ extract(res)
   : Read an emss Excel workbook
 - [`extract()`](https://sooyongl.github.io/emss/reference/extract.ESS.md)
   : Extract tables from an ESS result
-- [`genFakeDataSet()`](https://sooyongl.github.io/emss/reference/genFakeDataSet.md)
+- [`generateMockDataSet()`](https://sooyongl.github.io/emss/reference/generateMockDataSet.md)
   : Generate a Fake Data Set for Embedded Standard Setting
 - [`plot(`*`<ESS>`*`)`](https://sooyongl.github.io/emss/reference/plot.ESS.md)
   : Plot an ESS result

@@ -1,4 +1,4 @@
-fake_data <- genFakeDataSet(ngca = 3,
+fake_data <- generateMockDataSet(ngca = 3,
                             cor_val = 0.2,
                             n = 30,
                             nlevel = 3,

@@ -43,14 +43,14 @@ picks one.
 
 ## A simulated study
 
-[`genFakeDataSet()`](https://sooyongl.github.io/emss/reference/genFakeDataSet.md)
+[`generateMockDataSet()`](https://sooyongl.github.io/emss/reference/generateMockDataSet.md)
 simulates a complete study: here three grades, two tables of four
 panelists each, 40 items per grade, three performance levels, and three
 content domains.
 
 ``` r
 set.seed(7)
-sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
+sim <- generateMockDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
                       sdinp = 1, ecinp = 0, n = 40, 300, 500,
                       domains = c("Number", "Algebra", "Geometry"))
 names(sim)

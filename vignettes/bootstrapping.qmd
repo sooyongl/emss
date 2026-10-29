@@ -39,7 +39,7 @@ The simulated study from [Getting started](getting-started.html):
 ```{r}
 #| label: fit
 set.seed(7)
-sim <- genFakeDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
+sim <- generateMockDataSet(ngca = 3, ntable = 2, npanelist = 4, cor_val = 0.7, nlevel = 3,
                       sdinp = 1, ecinp = 0, n = 40, 300, 500,
                       domains = c("Number", "Algebra", "Geometry"))
 res <- emstans(data = sim, location = "Loc_RP50")

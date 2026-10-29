@@ -17,7 +17,7 @@ fake_study <- local({
   function() {
     if (is.null(cache)) {
       withr::with_seed(20261020, {
-        cache <<- genFakeDataSet(ngca = 2, cor_val = 0.6, n = 30, nlevel = 3,
+        cache <<- generateMockDataSet(ngca = 2, cor_val = 0.6, n = 30, nlevel = 3,
                                  ntable = 1, npanelist = 3, sdinp = 1, ecinp = 0,
                                  100, 300)
       })

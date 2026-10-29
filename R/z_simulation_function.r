@@ -3,7 +3,7 @@ NULL
 
 #' Generate a Fake Data Set for Embedded Standard Setting
 #'
-#' `genFakeDataSet()` generates a simulated data set that follows the input
+#' `generateMockDataSet()` generates a simulated data set that follows the input
 #' structure required by `emstans()`. The generated data can be used to test
 #' functions in the emss package, demonstrate the expected data format, or
 #' run examples without using operational data.
@@ -59,7 +59,7 @@ NULL
 #'
 #' @examples
 #' \dontrun{
-#' fake_data <- genFakeDataSet(
+#' fake_data <- generateMockDataSet(
 #'   ngca = 3,
 #'   ntable = 5,
 #'   npanelist = 5,
@@ -73,7 +73,7 @@ NULL
 #' )
 #' 
 #' # Three named subdomains
-#' fake_data <- genFakeDataSet(ngca = 2, ntable = 2, npanelist = 4,
+#' fake_data <- generateMockDataSet(ngca = 2, ntable = 2, npanelist = 4,
 #'                             cor_val = 0.6, nlevel = 3, sdinp = 1, ecinp = 0,
 #'                             n = 45, 300, 500,
 #'                             domains = c("Number", "Algebra", "Geometry"))
@@ -82,7 +82,7 @@ NULL
 #' # Four subdomains with default names (domains = 4), or none (domains = NULL)
 #' }
 #' @export
-genFakeDataSet <- function(ngca, ntable, npanelist, cor_val, nlevel, sdinp = 1, ecinp = 0, n, ...,
+generateMockDataSet <- function(ngca, ntable, npanelist, cor_val, nlevel, sdinp = 1, ecinp = 0, n, ...,
                            domains = c("Alg", "Geom", "Calc", "Prob")) {
   input <- list(...)
   domains <- fake_domains(domains, n)

@@ -106,7 +106,7 @@ test_that("examinee scores must be a long score-frequency table", {
 })
 
 test_that("fake data can have any number of named subdomains", {
-  sim <- function(...) withr::with_seed(1, genFakeDataSet(ngca = 2, ntable = 1, npanelist = 3, cor_val = 0.6,
+  sim <- function(...) withr::with_seed(1, generateMockDataSet(ngca = 2, ntable = 1, npanelist = 3, cor_val = 0.6,
                                                           nlevel = 3, sdinp = 1, ecinp = 0, n = 40, 300, 500, ...))
   d3 <- sim(domains = c("Number", "Algebra", "Geometry"))
   expect_equal(sort(as.vector(table(d3$item_data$Domain[d3$item_data$GCA == "M1"]))), c(13, 13, 14))

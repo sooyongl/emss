@@ -157,7 +157,7 @@ res_rounds
 check(length(extract(res_rounds, "cutscore")) == 14, "7 grades x 2 rounds")
 
 ## 7d. Simulated data with several panelists and tables
-fake <- genFakeDataSet(ngca = 2, cor_val = 0.6, n = 30, nlevel = 3, ntable = 2,
+fake <- generateMockDataSet(ngca = 2, cor_val = 0.6, n = 30, nlevel = 3, ntable = 2,
                        npanelist = 3, sdinp = 1, ecinp = 0, 100, 300)
 res_fake <- emstans(data = fake, location = "Loc_RP50")
 res_fake
